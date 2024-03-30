@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,11 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third party apps
     'rest_framework',
+    'corsheaders',
     # Local apps
     'users',
 ]
 
 MIDDLEWARE = [
+    # Cors headers middleware
+    'corsheaders.middleware.CorsMiddleware',
+    # Django middlewares
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -134,9 +139,13 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Cors headers settings
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Simple JWT settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
 # Custom user model
