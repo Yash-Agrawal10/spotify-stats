@@ -9,8 +9,14 @@ interface LoginCredentials {
   password: string;
 }
 
+interface User {
+  email: string;
+  first_name: string;
+  last_name: string;
+}
+
 interface AuthState {
-  email: string | null;
+  user: User | null;
   isLoggedIn: boolean;
   error: string | null;
 }
@@ -26,6 +32,10 @@ export const loginUser = createAsyncThunk<
     const { access, refresh } = response.data;
     localStorage.setItem("access_token", access);
     localStorage.setItem("refresh_token", refresh);
+    localStorage.setItem("email", credentials.email);
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("first_name", "Temporary");
+    localStorage.setItem("last_name", "Name");
     return credentials;
   } catch (error: any) {
     let errorMessage = "An error occurred";
@@ -37,9 +47,15 @@ export const loginUser = createAsyncThunk<
 });
 
 // Create auth slice
+const initialUser = {
+  email: localStorage.getItem("email") || "",
+  first_name: localStorage.getItem("first_name") || "",
+  last_name: localStorage.getItem("last_name") || "",
+};
+
 const initialState: AuthState = {
-  email: null,
-  isLoggedIn: false,
+  user: initialUser,
+  isLoggedIn: localStorage.getItem("isLoggedIn") === "true" ? true : false,
   error: null,
 };
 
@@ -50,15 +66,26 @@ const authSlice = createSlice({
     logout(state) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
-      state.email = null;
+      localStorage.removeItem("email");
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("first_name");
+      localStorage.removeItem("last_name");
+      state.user = null;
       state.isLoggedIn = false;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(
       loginUser.fulfilled,
       (state, action: PayloadAction<LoginCredentials>) => {
-        state.email = action.payload.email;
+        const user: User = {
+          email: action.payload.email,
+          first_name: "Temporary",
+          last_name: "Name",
+        };
+        console.log(user);
+        state.user = user;
         state.isLoggedIn = true;
         state.error = null;
       }

@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { loginUser } from "./authSlice";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
+  // Local state
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const dispatch = useAppDispatch();
   const error = useAppSelector((state) => state.auth.error);
+  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
+  const navigate = useNavigate();
 
+  // Event handlers
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCredentials({
       ...credentials,
@@ -18,11 +23,16 @@ const Login: React.FC = () => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(loginUser(credentials));
-    if (!error) {
-      setCredentials({ email: "", password: "" });
-    }
   };
 
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate("/");
+    }
+  }, [isLoggedIn, navigate]);
+
+  // JSX
   return (
     <Container className="mt-3">
       <h2>Login</h2>
