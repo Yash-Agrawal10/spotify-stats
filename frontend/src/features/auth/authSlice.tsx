@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../../app/store";
-import api from "../../app/api";
+import { RootState } from "../../app/state/store";
+import api from "../../app/api/api";
 import { isAxiosError } from "axios";
+import { saveData, loadData, removeData } from "../../app/state/localStorage";
 
 // Interfaces
 interface LoginCredentials {
@@ -9,14 +10,8 @@ interface LoginCredentials {
   password: string;
 }
 
-interface User {
-  email: string;
-  first_name: string;
-  last_name: string;
-}
-
 interface AuthState {
-  user: User | null;
+  email: string | null;
   isLoggedIn: boolean;
   error: string | null;
 }
@@ -29,13 +24,11 @@ export const loginUser = createAsyncThunk<
 >("auth/login", async (credentials, { rejectWithValue }) => {
   try {
     const response = await api.post("token/", credentials);
-    const { access, refresh } = response.data;
-    localStorage.setItem("access_token", access);
-    localStorage.setItem("refresh_token", refresh);
-    localStorage.setItem("email", credentials.email);
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("first_name", "Temporary");
-    localStorage.setItem("last_name", "Name");
+    const { refresh, access } = response.data;
+    saveData("access_token", access);
+    saveData("refresh_token", refresh);
+    saveData("email", credentials.email);
+    saveData("isLoggedIn", true);
     return credentials;
   } catch (error: any) {
     let errorMessage = "An error occurred";
@@ -47,15 +40,9 @@ export const loginUser = createAsyncThunk<
 });
 
 // Create auth slice
-const initialUser = {
-  email: localStorage.getItem("email") || "",
-  first_name: localStorage.getItem("first_name") || "",
-  last_name: localStorage.getItem("last_name") || "",
-};
-
 const initialState: AuthState = {
-  user: initialUser,
-  isLoggedIn: localStorage.getItem("isLoggedIn") === "true" ? true : false,
+  email: loadData("email") || null,
+  isLoggedIn: loadData("isLoggedIn") || false,
   error: null,
 };
 
@@ -64,13 +51,11 @@ const authSlice = createSlice({
   initialState: initialState,
   reducers: {
     logout(state) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("email");
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("first_name");
-      localStorage.removeItem("last_name");
-      state.user = null;
+      removeData("access_token");
+      removeData("refresh_token");
+      removeData("email");
+      removeData("isLoggedIn");
+      state.email = null;
       state.isLoggedIn = false;
       state.error = null;
     },
@@ -79,13 +64,7 @@ const authSlice = createSlice({
     builder.addCase(
       loginUser.fulfilled,
       (state, action: PayloadAction<LoginCredentials>) => {
-        const user: User = {
-          email: action.payload.email,
-          first_name: "Temporary",
-          last_name: "Name",
-        };
-        console.log(user);
-        state.user = user;
+        state.email = action.payload.email;
         state.isLoggedIn = true;
         state.error = null;
       }

@@ -1,11 +1,11 @@
 import React from "react";
 import { Button } from "react-bootstrap";
-import { useAppDispatch } from "../../app/hooks";
+import { useAppDispatch } from "../../app/state/hooks";
 import { logout } from "./authSlice";
 import { useNavigate } from "react-router-dom";
 import { Container, Row } from "react-bootstrap";
 
-const Logout: React.FC = () => {
+const LogoutPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -28,4 +28,4 @@ const Logout: React.FC = () => {
   );
 };
 
-export default Logout;
+export default LogoutPage;

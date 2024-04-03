@@ -1,6 +1,7 @@
+import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 
-const Home = () => {
+const HomePage: React.FC = () => {
   return (
     <Container>
       <Row className="mt-5">
@@ -20,4 +21,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomePage;

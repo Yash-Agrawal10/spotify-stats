@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/state/hooks";
 import { loginUser } from "./authSlice";
 import { useNavigate } from "react-router-dom";
 
-const Login: React.FC = () => {
+const LoginPage: React.FC = () => {
   // Local state
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const dispatch = useAppDispatch();
@@ -73,4 +73,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default LoginPage;

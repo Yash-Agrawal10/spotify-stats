@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Form, Button } from 'react-bootstrap';
 
-const Register= () => {
+const RegisterPage:React.FC = () => {
   // State for form fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,4 +39,4 @@ const Register= () => {
   );
 }
 
-export default Register;
+export default RegisterPage;
