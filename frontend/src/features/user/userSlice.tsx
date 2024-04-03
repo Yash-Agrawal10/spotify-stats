@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../app/api/api";
 import { saveData, loadData } from "../../app/state/localStorage";
 import { RootState } from "../../app/state/store";
+import { isAxiosError } from "axios";
 
 // Interfaces
 interface User {
@@ -22,7 +23,6 @@ export const fetchUser = createAsyncThunk<
   string,
   { rejectValue: string }
 >("user/me", async (token, { rejectWithValue }) => {
-  console.log("Called fetchUser");
   try {
     const response = await api.get("users/me/", {
       headers: {
@@ -30,11 +30,15 @@ export const fetchUser = createAsyncThunk<
       },
     });
     saveData("user", response.data);
-    return response.data as User;
+    return {
+      email: response.data.email,
+      first_name: response.data.first_name,
+      last_name: response.data.last_name,
+    } as User;
   } catch (error: any) {
-    let errorMessage = "An error occurred";
-    if (error.response) {
-      errorMessage = error.response.data.detail || errorMessage;
+    let errorMessage = "An unexpected error occurred";
+    if (isAxiosError(error)) {
+      errorMessage = error.response?.data.detail || errorMessage;
     }
     return rejectWithValue(errorMessage);
   }

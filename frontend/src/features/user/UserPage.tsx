@@ -8,10 +8,12 @@ import { fetchUser } from "./userSlice";
 import { loadData } from "../../app/state/localStorage";
 
 const UserPage: React.FC = () => {
+  // Local state
   const dispatch = useAppDispatch();
   const auth = useAppSelector(selectAuth);
   const user = useAppSelector(selectUser);
 
+  // Effects
   useEffect(() => {
     if (auth.isLoggedIn) {
       const token = loadData("access_token");
@@ -22,6 +24,7 @@ const UserPage: React.FC = () => {
     }
   }, [auth.isLoggedIn, dispatch]);
 
+  // JSX
   return (
     <Container className="mt-5 mb-5">
       <Card>

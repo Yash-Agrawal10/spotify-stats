@@ -33,3 +33,7 @@ export const cleanUpData = (duration_ms: number) => {
     }
   }
 };
+
+export const clearData = () => {
+  localStorage.clear();
+};

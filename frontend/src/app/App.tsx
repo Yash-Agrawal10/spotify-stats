@@ -17,7 +17,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Check if token is valid
-  }, [dispatch]);
+  }, [dispatch]); // Eventually remove dispatch from dependencies
 
   return (
     <>

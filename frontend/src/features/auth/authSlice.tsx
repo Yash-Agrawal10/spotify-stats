@@ -31,9 +31,9 @@ export const loginUser = createAsyncThunk<
     saveData("isLoggedIn", true);
     return credentials;
   } catch (error: any) {
-    let errorMessage = "An error occurred";
-    if (isAxiosError(error) && error.response) {
-      errorMessage = error.response.data.detail || errorMessage;
+    let errorMessage = "An unexpected error occurred";
+    if (isAxiosError(error)) {
+      errorMessage = error.response?.data.detail || errorMessage;
     }
     return rejectWithValue(errorMessage);
   }

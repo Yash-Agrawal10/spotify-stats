@@ -6,14 +6,17 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row } from "react-bootstrap";
 
 const LogoutPage: React.FC = () => {
+  // Local state
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  // Event handlers
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
   };
 
+  // JSX
   return (
     <Container>
       <Row>
