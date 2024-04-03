@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 import api from "../../app/api/api";
 import { isAxiosError } from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 // Interfaces
 interface RegisterData {
@@ -17,10 +19,13 @@ const RegisterPage: React.FC = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"None" | "Success" | "Failure">("None");
 
   // Event handlers
+  const togglePassword = () => setShowPassword(!showPassword);
+
   const registerUser = async (data: RegisterData) => {
     try {
       const response = await api.post("users/register/", data);
@@ -52,10 +57,10 @@ const RegisterPage: React.FC = () => {
 
   // JSX
   return (
-    <Container className="mt-3">
+    <Container className="mt-2">
       <h2>Register</h2>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="formBasicEmail">
+      <Form className="mt-3" onSubmit={handleSubmit}>
+        <Form.Group className="mt-2" controlId="formBasicEmail">
           <Form.Label>First Name</Form.Label>
           <Form.Control
             type="text"
@@ -65,7 +70,7 @@ const RegisterPage: React.FC = () => {
           />
         </Form.Group>
 
-        <Form.Group controlId="formBasicEmail">
+        <Form.Group className="mt-2" controlId="formBasicEmail">
           <Form.Label>Last Name</Form.Label>
           <Form.Control
             type="text"
@@ -75,7 +80,7 @@ const RegisterPage: React.FC = () => {
           />
         </Form.Group>
 
-        <Form.Group controlId="formBasicEmail">
+        <Form.Group className="mt-2" controlId="formBasicEmail">
           <Form.Label>Email</Form.Label>
           <Form.Control
             type="email"
@@ -85,14 +90,22 @@ const RegisterPage: React.FC = () => {
           />
         </Form.Group>
 
-        <Form.Group controlId="formBasicPassword">
+        <Form.Group className="mt-2" controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <Button
+            className="mt-2"
+            variant="outline-secondary"
+            onClick={togglePassword}
+            style={{ zIndex: 0 }}
+          >
+            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+          </Button>
         </Form.Group>
 
         <Button className="mt-3 mb-3" variant="primary" type="submit">
