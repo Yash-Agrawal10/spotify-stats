@@ -8,10 +8,18 @@ class RegisterView(APIView):
         data = request.data
         serializer = UserCreateSerializer(data=data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            data = {
+                'errors': serializer.errors,
+                'detail': 'Invalid input'
+            }
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         user = serializer.create(serializer.validated_data)
         user = UserSerializer(user)
-        return Response(user.data, status=status.HTTP_201_CREATED)
+        data = {
+            'user': user.data,
+            'detail': 'User created successfully'
+        }
+        return Response(data=data, status=status.HTTP_201_CREATED)
 
 class RetrieveUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
