@@ -12,7 +12,7 @@ class RegisterView(APIView):
                 'errors': serializer.errors,
                 'detail': 'Invalid input'
             }
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         user = serializer.create(serializer.validated_data)
         user = UserSerializer(user)
         data = {
@@ -27,4 +27,7 @@ class RetrieveUserView(APIView):
     def get(self, request):
         user = request.user
         user = UserSerializer(user)
-        return Response(user.data, status=status.HTTP_200_OK)
+        data = {
+            'user': user.data
+        }
+        return Response(data=data, status=status.HTTP_200_OK)

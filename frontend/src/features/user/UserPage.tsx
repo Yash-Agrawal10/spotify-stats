@@ -13,6 +13,13 @@ const UserPage: React.FC = () => {
   const auth = useAppSelector(selectAuth);
   const user = useAppSelector(selectUser);
 
+  // Helpers
+  const parseDate = (date: string) => {
+    const parsedDate = new Date(date);
+    const formattedDate = parsedDate.toLocaleDateString("en-US");
+    return formattedDate;
+  };
+
   // Effects
   useEffect(() => {
     if (auth.isLoggedIn) {
@@ -35,6 +42,9 @@ const UserPage: React.FC = () => {
               <Card.Text>First Name: {user.user.first_name}</Card.Text>
               <Card.Text>Last Name: {user.user.last_name}</Card.Text>
               <Card.Text>Email: {user.user.email}</Card.Text>
+              <Card.Text>
+                Date Joined: {parseDate(user.user.date_joined)}
+              </Card.Text>
             </div>
           ) : (
             <Card.Text>{user.error}</Card.Text>

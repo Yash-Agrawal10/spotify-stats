@@ -9,6 +9,7 @@ interface User {
   email: string;
   first_name: string;
   last_name: string;
+  date_joined: string;
 }
 
 interface UserState {
@@ -29,12 +30,9 @@ export const fetchUser = createAsyncThunk<
         Authorization: `Bearer ${token}`,
       },
     });
-    saveData("user", response.data);
-    return {
-      email: response.data.email,
-      first_name: response.data.first_name,
-      last_name: response.data.last_name,
-    } as User;
+    const user: User = response.data.user as User;
+    saveData("user", user);
+    return user;
   } catch (error: any) {
     let errorMessage = "An unexpected error occurred";
     if (isAxiosError(error)) {
