@@ -5,7 +5,7 @@ from .services import get_spotify_auth_url, exchange_code_for_token
 from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
-class spotify_login(APIView):
+class spotify_auth(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
