@@ -150,3 +150,6 @@ SIMPLE_JWT = {
 
 # Custom user model
 AUTH_USER_MODEL = 'users.UserAccount'
+
+# Frontend URL
+FRONTEND_URL = 'http://localhost:3000'

@@ -1,5 +1,7 @@
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
+from django.conf import settings
+from urllib.parse import urlencode
 from rest_framework.views import APIView
 from .services import get_spotify_auth_url, exchange_code_for_token
 from rest_framework.permissions import IsAuthenticated
@@ -20,6 +22,7 @@ class spotify_callback(APIView):
         code = request.GET.get('code')
         error = request.GET.get('error')
         user = request.user
+        redirect_url = settings.FRONTEND_URL
 
         if error:
             return JsonResponse({'error': error}, status=400)
@@ -27,5 +30,11 @@ class spotify_callback(APIView):
         if code:
             success, response = exchange_code_for_token(user, code)
             if success:
-                return JsonResponse({'details': 'Spotify token has been updated'}, status=200)
-            return JsonResponse({'error': 'Invalid request'}, status=400)
+                params = {'success': 'true', 'details': 'Authorization successful'}
+            else:
+                params = {'success': 'false', 'details': response}
+        else:
+            params = {'success': 'false', 'details': 'No code provided'}
+        
+        redirect_url_with_params = f'{redirect_url}?{urlencode(params)}'
+        return HttpResponseRedirect(redirect_url_with_params)
