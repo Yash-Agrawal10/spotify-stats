@@ -3,16 +3,21 @@ import { Container, Form, Button, Alert } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../app/state/hooks";
 import { loginUser } from "./authSlice";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const LoginPage: React.FC = () => {
   // Local state
   const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useAppDispatch();
   const error = useAppSelector((state) => state.auth.error);
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const navigate = useNavigate();
 
   // Event handlers
+  const togglePassword = () => setShowPassword(!showPassword);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCredentials({
       ...credentials,
@@ -37,7 +42,7 @@ const LoginPage: React.FC = () => {
     <Container className="mt-3">
       <h2>Login</h2>
       <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="formBasicUsername">
+        <Form.Group className = "mt-2" controlId="formBasicUsername">
           <Form.Label>Email</Form.Label>
           <Form.Control
             name="email"
@@ -49,16 +54,24 @@ const LoginPage: React.FC = () => {
           />
         </Form.Group>
 
-        <Form.Group controlId="formBasicPassword">
+        <Form.Group className="mt-2" controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control
             name="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             required
-            placeholder="Password"
+            placeholder="Enter password"
             value={credentials.password}
             onChange={handleChange}
           />
+          <Button
+            className="mt-2"
+            variant="outline-secondary"
+            onClick={togglePassword}
+            style={{ zIndex: 0 }}
+          >
+            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+          </Button>
         </Form.Group>
 
         <Button className="mt-3 mb-3" variant="primary" type="submit">

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import api from "../../app/api/api";
-import { saveData, loadData } from "../../app/state/localStorage";
+import { saveData, loadData } from "../../app/state/sessionStorage";
 import { RootState } from "../../app/state/store";
 import { isAxiosError } from "axios";
 

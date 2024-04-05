@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/state/store";
 import api from "../../app/api/api";
 import { isAxiosError } from "axios";
-import { saveData, loadData, removeData } from "../../app/state/localStorage";
+import { saveData, loadData, removeData } from "../../app/state/sessionStorage";
 
 // Interfaces
 interface LoginCredentials {

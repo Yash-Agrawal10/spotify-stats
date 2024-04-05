@@ -5,7 +5,7 @@ import { useAppSelector, useAppDispatch } from "../../app/state/hooks";
 import { selectAuth } from "../auth/authSlice";
 import { selectUser } from "./userSlice";
 import { fetchUser } from "./userSlice";
-import { loadData } from "../../app/state/localStorage";
+import { loadData } from "../../app/state/sessionStorage";
 
 const UserPage: React.FC = () => {
   // Local state

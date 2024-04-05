@@ -3,11 +3,11 @@ export const saveData = (key: string, value: any) => {
     value: value,
     timestamp: new Date().getTime(),
   };
-  localStorage.setItem(key, JSON.stringify(item));
+  sessionStorage.setItem(key, JSON.stringify(item));
 };
 
 export const loadData = (key: string) => {
-  const item = localStorage.getItem(key);
+  const item = sessionStorage.getItem(key);
   if (!item) {
     return null;
   }
@@ -17,23 +17,23 @@ export const loadData = (key: string) => {
 };
 
 export const removeData = (key: string) => {
-  localStorage.removeItem(key);
+  sessionStorage.removeItem(key);
 };
 
 export const cleanUpData = (duration_ms: number) => {
   const now = new Date().getTime();
-  for (var i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
+  for (var i = 0; i < sessionStorage.length; i++) {
+    const key = sessionStorage.key(i);
     if (!key) continue;
-    const item = localStorage.getItem(key);
+    const item = sessionStorage.getItem(key);
     if (!item) continue;
     const parsedItem = JSON.parse(item);
     if (now - parsedItem.timestamp > duration_ms) {
-      localStorage.removeItem(key);
+      sessionStorage.removeItem(key);
     }
   }
 };
 
 export const clearData = () => {
-  localStorage.clear();
+  sessionStorage.clear();
 };

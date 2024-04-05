@@ -18,8 +18,7 @@ class SpotifyAuthView(APIView):
         OAuthState.objects.create(user=user, state=state)
         scopes = 'user-read-recently-played'
         auth_url = get_spotify_auth_url(scopes, state)
-        return JsonResponse({'auth_url': auth_url}) # (Use this line for testing in Postman)
-        # return HttpResponseRedirect(auth_url)
+        return JsonResponse({'auth_url': auth_url})
     
 class SpotifyCallbackView(APIView):
     
