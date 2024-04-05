@@ -18,7 +18,8 @@ class SpotifyAuthView(APIView):
         OAuthState.objects.create(user=user, state=state)
         scopes = 'user-read-recently-played'
         auth_url = get_spotify_auth_url(scopes, state)
-        return HttpResponseRedirect(auth_url)
+        return JsonResponse({'auth_url': auth_url}) # (Use this line for testing in Postman)
+        # return HttpResponseRedirect(auth_url)
     
 class SpotifyCallbackView(APIView):
     
@@ -36,7 +37,7 @@ class SpotifyCallbackView(APIView):
         if code:
             # Get user and check if state is valid
             try:
-                oauth_state = OAuthState.objects.get(state=state).delete()
+                oauth_state = OAuthState.objects.get(state=state)
                 user = oauth_state.user
                 oauth_state.delete()
             except OAuthState.DoesNotExist:

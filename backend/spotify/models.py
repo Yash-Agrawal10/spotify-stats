@@ -13,7 +13,7 @@ class SpotifyToken(models.Model):
     refresh_token = models.CharField(max_length=150)
 
     def __str__(self):
-        return f"{self.user.username}'s Spotify Token"
+        return f"{self.user.email}'s Spotify Token"
     
 class OAuthState(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
