@@ -5,29 +5,44 @@ from urllib.parse import urlencode
 from rest_framework.views import APIView
 from .services import get_spotify_auth_url, exchange_code_for_token
 from rest_framework.permissions import IsAuthenticated
+import secrets
+from .models import OAuthState
 
 # Create your views here.
-class spotify_auth(APIView):
+class SpotifyAuthView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
+        user = request.user
+        state = secrets.token_urlsafe()
+        OAuthState.objects.create(user=user, state=state)
         scopes = 'user-read-recently-played'
-        auth_url = get_spotify_auth_url(scopes)
+        auth_url = get_spotify_auth_url(scopes, state)
         return HttpResponseRedirect(auth_url)
     
-class spotify_callback(APIView):
-    permission_classes = [IsAuthenticated]
-
+class SpotifyCallbackView(APIView):
+    
     def get(self, request, format=None):
+        # Get information from request
+        state = request.GET.get('state')
         code = request.GET.get('code')
         error = request.GET.get('error')
-        user = request.user
         redirect_url = settings.FRONTEND_URL
 
+        # Return error if there is one
         if error:
             return JsonResponse({'error': error}, status=400)
         
         if code:
+            # Get user and check if state is valid
+            try:
+                oauth_state = OAuthState.objects.get(state=state).delete()
+                user = oauth_state.user
+                oauth_state.delete()
+            except OAuthState.DoesNotExist:
+                return JsonResponse({'error': 'Invalid state'}, status=400)
+            
+            # Exchange code for token
             success, response = exchange_code_for_token(user, code)
             if success:
                 params = {'success': 'true', 'details': 'Authorization successful'}

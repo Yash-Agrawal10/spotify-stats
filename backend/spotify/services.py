@@ -12,12 +12,13 @@ client_id = os.getenv('CLIENT_ID')
 client_secret = os.getenv('CLIENT_SECRET')
 redirect_uri = os.getenv('REDIRECT_URI')
 
-def get_spotify_auth_url(scopes:str):
+def get_spotify_auth_url(scopes:str, state:str=None):
     params = {
         'client_id': client_id,
         'response_type': 'code',
         'redirect_uri': redirect_uri,
         'scope': scopes,
+        'state': state,
     }
     endpoint = 'https://accounts.spotify.com/authorize'
     url = requests.Request('GET', endpoint, params=params).prepare().url
