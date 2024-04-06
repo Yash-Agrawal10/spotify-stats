@@ -14,10 +14,13 @@ class SpotifyAuthView(APIView):
 
     def get(self, request, format=None):
         user = request.user
+        print("User: ", user)
         # Check for existing token
-        token = SpotifyToken.objects.get(user=user)
-        if not check_valid_and_refresh(token):
+        token = SpotifyToken.objects.filter(user=user).first()
+        if token and not check_valid_and_refresh(token):
             token.delete()
+            token = None
+        if not token:
             OAuthState.objects.filter(user=user).delete()
             state = secrets.token_urlsafe()
             oauth_state_serializer = OAuthStateSerializer(data={'user': user, 'state': state})

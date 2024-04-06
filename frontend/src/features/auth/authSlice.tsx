@@ -22,9 +22,14 @@ interface AuthState {
   error: string | null;
 }
 
+interface LoginResponse {
+  user: User;
+  redirect_url: string;
+}
+
 // Reducers
 export const loginUser = createAsyncThunk<
-  User,
+  LoginResponse,
   LoginCredentials,
   { rejectValue: string }
 >("auth/login", async (credentials, { rejectWithValue }) => {
@@ -35,13 +40,18 @@ export const loginUser = createAsyncThunk<
     const headers = { Authorization: `Bearer ${access}` };
     const userResponse = await api.get("users/me/", { headers });
     const user: User = userResponse.data.user as User;
-    // Save data to session storage
-    saveData("access_token", access);
-    saveData("refresh_token", refresh);
-    saveData("isLoggedIn", true);
-    saveData("user", user);
-    // Return User
-    return user;
+    const spotifyAuthResponse = await api.get("spotify/auth/", { headers });
+    const redirect_url = spotifyAuthResponse.data.auth_url;
+    if (redirect_url) {
+      // Save data to session storage
+      saveData("access_token", access);
+      saveData("refresh_token", refresh);
+      saveData("isLoggedIn", true);
+      saveData("user", user);
+      // Return User
+      return { user, redirect_url };
+    }
+    return rejectWithValue("Spotify authentication failed");
   } catch (error: any) {
     // Handle errors
     const errorMessage = processError(error);
@@ -73,10 +83,13 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(
       loginUser.fulfilled,
-      (state, action: PayloadAction<User>) => {
-        state.user = action.payload;
+      (state, action: PayloadAction<LoginResponse>) => {
+        const user = action.payload.user;
+        const redirect_url = action.payload.redirect_url;
+        state.user = user;
         state.isLoggedIn = true;
         state.error = null;
+        window.location.href = redirect_url;
       }
     );
     builder.addCase(
