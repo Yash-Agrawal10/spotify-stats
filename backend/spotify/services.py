@@ -36,7 +36,7 @@ def exchange_code_for_token(user, code:str):
     response = requests.post(endpoint, data=data)
     if response.status_code in range(200, 299):
         token_data = response.json()
-        token_data['user'] = user
+        token_data['user'] = user.pk
         token_data['expires_in'] = timezone.now() + timedelta(seconds=token_data['expires_in'])
         return True, token_data
     return False, response.json()

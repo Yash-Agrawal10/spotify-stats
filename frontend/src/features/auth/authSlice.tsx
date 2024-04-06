@@ -41,7 +41,7 @@ export const loginUser = createAsyncThunk<
     const userResponse = await api.get("users/me/", { headers });
     const user: User = userResponse.data.user as User;
     const spotifyAuthResponse = await api.get("spotify/auth/", { headers });
-    const redirect_url = spotifyAuthResponse.data.auth_url;
+    const redirect_url = spotifyAuthResponse.data.redirect_url;
     if (redirect_url) {
       // Save data to session storage
       saveData("access_token", access);

@@ -14,7 +14,6 @@ class SpotifyAuthView(APIView):
 
     def get(self, request, format=None):
         user = request.user
-        print("User: ", user)
         # Check for existing token
         token = SpotifyToken.objects.filter(user=user).first()
         if token and not check_valid_and_refresh(token):
@@ -23,17 +22,15 @@ class SpotifyAuthView(APIView):
         if not token:
             OAuthState.objects.filter(user=user).delete()
             state = secrets.token_urlsafe()
-            oauth_state_serializer = OAuthStateSerializer(data={'user': user, 'state': state})
+            oauth_state_serializer = OAuthStateSerializer(data={'user': user.pk, 'state': state})
             if oauth_state_serializer.is_valid(raise_exception=True):
                 oauth_state_serializer.save()
             scopes = 'user-read-recently-played'
             auth_url = get_spotify_auth_url(scopes, state)
-            return JsonResponse({'auth_url': auth_url})
+            return JsonResponse({'redirect_url': auth_url}, status=200)
         else:
-            params = {'success': 'true', 'details': 'Token already exists'}
             redirect_url = settings.FRONTEND_URL
-            redirect_url_with_params = f'{redirect_url}?{urlencode(params)}'
-            return HttpResponseRedirect(redirect_url_with_params)        
+            return JsonResponse({'redirect_url': redirect_url}, status=302)        
     
 class SpotifyCallbackView(APIView):
     

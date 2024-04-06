@@ -23,7 +23,6 @@ const UserPage: React.FC = () => {
       const response = await api.get("/history/get/", { headers });
       if (response.status === 200) {
         setHistory(response.data);
-        setError(null);
       }
     } catch (error) {
       const errorMessage: string = processError(error);
@@ -65,29 +64,39 @@ const UserPage: React.FC = () => {
         </Card>
       </Row>
       <Row className="mt-3">
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Song</th>
-              <th>Album</th>
-              <th>Artists</th>
-              <th>Played At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {history.map((item, index) => (
-              <tr key={index}>
-                <td>{item.song}</td>
-                <td>{item.album}</td>
-                <td>{item.artists.join(", ")}</td>
-                <td>{new Date(item.played_at).toLocaleString()}</td>
+        {error ? (
+          <p>{error}</p>
+        ) : (
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Song</th>
+                <th>Album</th>
+                <th>Artists</th>
+                <th>Played At</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {history.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.song}</td>
+                  <td>{item.album}</td>
+                  <td>{item.artists.join(", ")}</td>
+                  <td>{new Date(item.played_at).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        )}
       </Row>
       <Row className="mt-3">
-        <Button variant="primary" onClick={handleUpdateHistory}>
+        <Button
+          variant="primary"
+          onClick={(e) => {
+            e.preventDefault();
+            handleUpdateHistory();
+          }}
+        >
           Update History
         </Button>
       </Row>
