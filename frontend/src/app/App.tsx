@@ -11,6 +11,7 @@ import RegisterPage from "../features/auth/RegisterPage";
 import LoginPage from "../features/auth/LoginPage";
 import LogoutPage from "../features/auth/LogoutPage";
 import UserPage from "../features/auth/UserPage";
+import HistoryPage from "../features/history/HistoryPage";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -30,6 +31,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/logout" element={<LogoutPage />}></Route>
             <Route path="/account" element={<UserPage />} />
+            <Route path="/history" element={<HistoryPage />} />
             <Route path="*" element={<h1>404 Not Found</h1>}></Route>
           </Routes>
         </Container>
