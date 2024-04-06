@@ -28,4 +28,5 @@ urlpatterns = [
     # Local Apps
     path('api/users/', include('users.urls')),
     path('api/spotify/', include('spotify.urls')),
+    # path('api/history/', include('history.urls')),
 ]

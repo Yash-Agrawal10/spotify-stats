@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # Local apps
     'users',
     'spotify',
+    'history',
 ]
 
 MIDDLEWARE = [
