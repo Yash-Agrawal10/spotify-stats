@@ -1,5 +1,4 @@
 import requests
-from django.conf import settings
 from django.utils import timezone
 from datetime import timedelta
 from .models import SpotifyToken
@@ -12,6 +11,7 @@ client_id = os.getenv('CLIENT_ID')
 client_secret = os.getenv('CLIENT_SECRET')
 redirect_uri = os.getenv('REDIRECT_URI')
 
+# Token services
 def get_spotify_auth_url(scopes:str, state:str=None):
     params = {
         'client_id': client_id,
@@ -78,6 +78,13 @@ def refresh_spotify_token(spotify_token:SpotifyToken):
     else:
         return None
     
+def check_valid_and_refresh(token:SpotifyToken):
+    refreshed_access_token = refresh_spotify_token(token)
+    if refreshed_access_token:
+        return True
+    return False
+
+# API services
 def make_spotify_api_request(user, endpoint:str):
     access_token = get_spotify_access_token(user)
     if access_token:
@@ -89,8 +96,16 @@ def make_spotify_api_request(user, endpoint:str):
     else:
         return None
     
-def check_valid_and_refresh(token:SpotifyToken):
-    refreshed_access_token = refresh_spotify_token(token)
-    if refreshed_access_token:
-        return True
-    return False
+def get_recently_played(user, limit:int=50, after:int=None):
+    endpoint = 'https://api.spotify.com/v1/me/player/recently-played'
+    params = {
+        'limit': limit,
+    }
+    if after:
+        params['after'] = after
+    response = make_spotify_api_request(user, endpoint)
+    if not response:
+        return {'success': False, 'response': 'Invalid token'}
+    if response.status_code in range(200, 299):
+        return {'success': True, 'response': response.json()}
+    return {'success': False, 'response': response.json()}
