@@ -1,4 +1,5 @@
 // src/components/DashboardPage.tsx
+import React from "react";
 import { Container, Card } from "react-bootstrap";
 import { useAppSelector } from "../../app/state/hooks";
 import { selectAuth } from "./authSlice";

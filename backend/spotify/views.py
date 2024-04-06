@@ -14,6 +14,13 @@ class SpotifyAuthView(APIView):
 
     def get(self, request, format=None):
         user = request.user
+        # Check for existing token
+        token = get_spotify_access_token(user)
+        if token:
+            params = {'success': 'true', 'details': 'Token already exists'}
+            redirect_url = settings.FRONTEND_URL
+            redirect_url_with_params = f'{redirect_url}?{urlencode(params)}'
+            return HttpResponseRedirect(redirect_url_with_params)
         # If not, redirect to Spotify auth page
         state = secrets.token_urlsafe()
         old_states = OAuthState.objects.filter(user=user)

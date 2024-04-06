@@ -52,8 +52,8 @@ def get_spotify_access_token(user):
     try:
         spotify_token = SpotifyToken.objects.get(user=user)
         if spotify_token.expires_in <= timezone.now():
-            refresh_response = refresh_spotify_token(spotify_token)
-            return refresh_response
+            new_access_token = refresh_spotify_token(spotify_token)
+            return new_access_token
         else:
             return spotify_token.access_token
     except SpotifyToken.DoesNotExist:
