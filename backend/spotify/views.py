@@ -15,6 +15,8 @@ class SpotifyAuthView(APIView):
     def get(self, request, format=None):
         user = request.user
         state = secrets.token_urlsafe()
+        old_states = OAuthState.objects.filter(user=user)
+        old_states.delete()
         OAuthState.objects.create(user=user, state=state)
         scopes = 'user-read-recently-played'
         auth_url = get_spotify_auth_url(scopes, state)

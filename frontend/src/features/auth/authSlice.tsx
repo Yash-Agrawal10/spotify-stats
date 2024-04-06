@@ -24,7 +24,7 @@ interface AuthState {
 }
 
 // Reducers
-export const fetchTokenAndUser = createAsyncThunk<
+export const loginUser = createAsyncThunk<
   User,
   LoginCredentials,
   { rejectValue: string }
@@ -76,7 +76,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(
-      fetchTokenAndUser.fulfilled,
+      loginUser.fulfilled,
       (state, action: PayloadAction<User>) => {
         state.user = action.payload;
         state.isLoggedIn = true;
@@ -84,7 +84,7 @@ const authSlice = createSlice({
       }
     );
     builder.addCase(
-      fetchTokenAndUser.rejected,
+      loginUser.rejected,
       (state, action: PayloadAction<string | undefined>) => {
         state.error = action.payload || "An unexpected error occurred";
       }
