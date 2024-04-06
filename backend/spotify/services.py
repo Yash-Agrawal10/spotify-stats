@@ -96,16 +96,12 @@ def make_spotify_api_request(user, endpoint:str):
     else:
         return None
     
-def get_recently_played(user, limit:int=50, after:int=None):
+def get_recently_played(user, limit:int=50):
     endpoint = 'https://api.spotify.com/v1/me/player/recently-played'
     params = {
         'limit': limit,
     }
-    if after:
-        params['after'] = after
     response = make_spotify_api_request(user, endpoint)
-    if not response:
-        return {'success': False, 'response': 'Invalid token'}
-    if response.status_code in range(200, 299):
-        return {'success': True, 'response': response.json()}
-    return {'success': False, 'response': response.json()}
+    if response and response.status_code in range(200, 299):
+        return response.json()["items"]
+    return None
