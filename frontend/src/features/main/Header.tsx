@@ -6,8 +6,10 @@ import { useAppSelector } from "../../app/state/hooks";
 import { selectAuth } from "../auth/authSlice";
 
 const Header = () => {
+  // Redux state
   const isLoggedIn = useAppSelector(selectAuth).isLoggedIn;
 
+  // JSX
   const authLinks = (
     <>
       <Nav.Link href="/account">Account</Nav.Link>
