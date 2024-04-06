@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row } from "react-bootstrap";
 
 const LogoutPage: React.FC = () => {
-  // Local state
+  // Hooks
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 

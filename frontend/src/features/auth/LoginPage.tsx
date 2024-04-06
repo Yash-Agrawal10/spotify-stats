@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 import { useAppDispatch, useAppSelector } from "../../app/state/hooks";
-import { loginUser } from "./authSlice";
+import { selectAuth } from "./authSlice";
+import { fetchTokenAndUser } from "./authSlice";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
@@ -10,9 +11,11 @@ const LoginPage: React.FC = () => {
   // Local state
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  // Redux state
+  const error = useAppSelector(selectAuth).error;
+  const isLoggedIn = useAppSelector(selectAuth).isLoggedIn;
+  // Hooks
   const dispatch = useAppDispatch();
-  const error = useAppSelector((state) => state.auth.error);
-  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const navigate = useNavigate();
 
   // Event handlers
@@ -27,10 +30,10 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    dispatch(loginUser(credentials));
+    dispatch(fetchTokenAndUser(credentials));
   };
 
-  // Redirect to dashboard if already logged in
+  // Redirect to home if already logged in
   useEffect(() => {
     if (isLoggedIn) {
       navigate("/");

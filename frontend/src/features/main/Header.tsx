@@ -2,11 +2,11 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 
-import { useSelector } from "react-redux";
+import { useAppSelector } from "../../app/state/hooks";
 import { selectAuth } from "../auth/authSlice";
 
 const Header = () => {
-  const auth = useSelector(selectAuth);
+  const isLoggedIn = useAppSelector(selectAuth).isLoggedIn;
 
   const authLinks = (
     <>
@@ -28,9 +28,7 @@ const Header = () => {
         <Navbar.Brand href="/">Spotify-Stats</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            {auth.isLoggedIn ? authLinks : guestLinks}
-          </Nav>
+          <Nav className="me-auto">{isLoggedIn ? authLinks : guestLinks}</Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>
