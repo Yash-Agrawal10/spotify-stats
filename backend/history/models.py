@@ -5,7 +5,6 @@ from django.conf import settings
 class Artist(models.Model):
     spotify_id = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, unique=True)
-
     # genres
     # popularity
     # followers
