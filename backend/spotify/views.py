@@ -6,6 +6,7 @@ from .services import get_spotify_auth_url, exchange_code_for_token, check_valid
 from rest_framework.permissions import IsAuthenticated
 import secrets
 from .models import OAuthState, SpotifyToken
+from .serializers import OAuthStateSerializer, SpotifyTokenSerializer
 
 # Create your views here.
 class SpotifyAuthView(APIView):
@@ -14,23 +15,22 @@ class SpotifyAuthView(APIView):
     def get(self, request, format=None):
         user = request.user
         # Check for existing token
-        token = SpotifyToken.objects.filter(user=user).first()
+        token = SpotifyToken.objects.get(user=user)
         if not check_valid_and_refresh(token):
             token.delete()
-            token = None
-        if token:
+            OAuthState.objects.filter(user=user).delete()
+            state = secrets.token_urlsafe()
+            oauth_state_serializer = OAuthStateSerializer(data={'user': user, 'state': state})
+            if oauth_state_serializer.is_valid(raise_exception=True):
+                oauth_state_serializer.save()
+            scopes = 'user-read-recently-played'
+            auth_url = get_spotify_auth_url(scopes, state)
+            return JsonResponse({'auth_url': auth_url})
+        else:
             params = {'success': 'true', 'details': 'Token already exists'}
             redirect_url = settings.FRONTEND_URL
             redirect_url_with_params = f'{redirect_url}?{urlencode(params)}'
-            return HttpResponseRedirect(redirect_url_with_params)
-        # If not, redirect to Spotify auth page
-        state = secrets.token_urlsafe()
-        old_states = OAuthState.objects.filter(user=user)
-        old_states.delete()
-        OAuthState.objects.create(user=user, state=state)
-        scopes = 'user-read-recently-played'
-        auth_url = get_spotify_auth_url(scopes, state)
-        return JsonResponse({'auth_url': auth_url})
+            return HttpResponseRedirect(redirect_url_with_params)        
     
 class SpotifyCallbackView(APIView):
     
@@ -52,11 +52,16 @@ class SpotifyCallbackView(APIView):
                 oauth_state.delete()
             except OAuthState.DoesNotExist:
                 return JsonResponse({'error': 'Invalid state'}, status=400)
-            
             # Exchange code for token
             success, response = exchange_code_for_token(user, code)
             if success:
-                params = {'success': 'true', 'details': 'Authorization successful'}
+                token_data = response
+                token_serializer = SpotifyTokenSerializer(data=token_data)
+                if token_serializer.is_valid(raise_exception=True):
+                    token_serializer.save()
+                    params = {'success': 'true', 'details': 'Token successfully created'}
+                else:
+                    params = {'success': 'false', 'details': 'Token creation failed'}
             else:
                 params = {'success': 'false', 'details': response}
         else:

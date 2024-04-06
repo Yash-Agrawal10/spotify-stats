@@ -36,15 +36,8 @@ def exchange_code_for_token(user, code:str):
     response = requests.post(endpoint, data=data)
     if response.status_code in range(200, 299):
         token_data = response.json()
-        expires_in = timezone.now() + timedelta(seconds=token_data['expires_in'])
-        defaults = {
-            'access_token': token_data['access_token'],
-            'token_type': token_data['token_type'],
-            'scope': token_data['scope'],
-            'expires_in': expires_in,
-            'refresh_token': token_data['refresh_token'],
-        }
-        SpotifyToken.objects.update_or_create(user=user, defaults=defaults)
+        token_data['user'] = user
+        token_data['expires_in'] = timezone.now() + timedelta(seconds=token_data['expires_in'])
         return True, token_data
     return False, response.json()
 
@@ -85,7 +78,7 @@ def check_valid_and_refresh(token:SpotifyToken):
     return False
 
 # API services
-def make_spotify_api_request(user, endpoint:str):
+def make_spotify_api_request(user, endpoint:str, type:str='GET', data:dict=None):
     access_token = get_spotify_access_token(user)
     if access_token:
         headers = {
