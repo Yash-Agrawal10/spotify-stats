@@ -3,10 +3,10 @@ from django.urls import reverse
 from django.conf import settings
 from urllib.parse import urlencode
 from rest_framework.views import APIView
-from .services import get_spotify_auth_url, exchange_code_for_token
+from .services import get_spotify_auth_url, exchange_code_for_token, refresh_spotify_token
 from rest_framework.permissions import IsAuthenticated
 import secrets
-from .models import OAuthState
+from .models import OAuthState, SpotifyToken
 
 # Create your views here.
 class SpotifyAuthView(APIView):
@@ -14,6 +14,18 @@ class SpotifyAuthView(APIView):
 
     def get(self, request, format=None):
         user = request.user
+        # Check if user has valid token
+        token = SpotifyToken.objects.filter(user=user).first()
+        if token:
+            response = refresh_spotify_token(token)
+            if response:
+                params = {'success': 'true', 'details': 'Authorization successful'}
+                redirect_url = settings.FRONTEND_URL
+                redirect_url_with_params = f'{redirect_url}?{urlencode(params)}'
+                return HttpResponseRedirect(redirect_url_with_params)
+            else:
+                token.delete()
+        # If not, redirect to Spotify auth page
         state = secrets.token_urlsafe()
         old_states = OAuthState.objects.filter(user=user)
         old_states.delete()
@@ -29,7 +41,6 @@ class SpotifyCallbackView(APIView):
         state = request.GET.get('state')
         code = request.GET.get('code')
         error = request.GET.get('error')
-        redirect_url = settings.FRONTEND_URL
 
         # Return error if there is one
         if error:
@@ -52,6 +63,7 @@ class SpotifyCallbackView(APIView):
                 params = {'success': 'false', 'details': response}
         else:
             params = {'success': 'false', 'details': 'No code provided'}
-        
+
+        redirect_url = settings.FRONTEND_URL
         redirect_url_with_params = f'{redirect_url}?{urlencode(params)}'
         return HttpResponseRedirect(redirect_url_with_params)
