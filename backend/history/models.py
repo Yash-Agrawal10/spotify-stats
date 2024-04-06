@@ -3,7 +3,7 @@ from django.conf import settings
 
 # Create your models here.
 class Artist(models.Model):
-    spotify_id = models.CharField(max_length=255, unique=True)
+    spotify_id = models.CharField(max_length=255, unique=True, primary_key=True)
     name = models.CharField(max_length=255, unique=True)
     # genres
     # popularity
@@ -13,7 +13,7 @@ class Artist(models.Model):
         return self.name
     
 class Album(models.Model):
-    spotify_id = models.CharField(max_length=255, unique=True)
+    spotify_id = models.CharField(max_length=255, unique=True, primary_key=True)
     name = models.CharField(max_length=255)
     artists = models.ManyToManyField(Artist, related_name='albums')
     release_date = models.DateField()
@@ -23,7 +23,7 @@ class Album(models.Model):
         return f"{self.name} by {artists}"
 
 class Track(models.Model):
-    spotify_id = models.CharField(max_length=255, unique=True)
+    spotify_id = models.CharField(max_length=255, unique=True, primary_key=True)
     title = models.CharField(max_length=255)
     artists = models.ManyToManyField(Artist, related_name='tracks')
     album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name='track')
