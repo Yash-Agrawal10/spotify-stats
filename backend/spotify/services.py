@@ -59,7 +59,7 @@ def get_spotify_access_token(user):
     except SpotifyToken.DoesNotExist:
         return None
     
-def refresh_spotify_token(spotify_token):
+def refresh_spotify_token(spotify_token:SpotifyToken):
     endpoint = 'https://accounts.spotify.com/api/token'
     data = {
         'grant_type': 'refresh_token',
@@ -88,3 +88,9 @@ def make_spotify_api_request(user, endpoint:str):
         return response
     else:
         return None
+    
+def check_valid_and_refresh(token:SpotifyToken):
+    refreshed_access_token = refresh_spotify_token(token)
+    if refreshed_access_token:
+        return True
+    return False

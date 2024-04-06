@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { selectAuth, logout } from "../auth/authSlice";
 import { useAppDispatch, useAppSelector } from "../../app/state/hooks";
 import { useEffect } from "react";
+import { loadData } from "../../app/state/sessionStorage";
 
 const HomePage: React.FC = () => {
   // Hooks
@@ -19,8 +20,14 @@ const HomePage: React.FC = () => {
     const checkSpotifyAuth = async () => {
       if (isLoggedIn) {
         try {
-          const response = await api.get("/spotify/auth/");
-          console.log(response.data);
+          const headers = {
+            Authorization: `Bearer ${loadData("access_token")}`,
+          };
+          const response = await api.get("/spotify/auth/", { headers });
+          const redirect_url = response.data.auth_url;
+          if (redirect_url) {
+            window.location.href = redirect_url;
+          }
         } catch (error) {
           console.log(error);
           dispatch(logout());

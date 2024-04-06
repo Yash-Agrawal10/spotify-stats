@@ -1,9 +1,8 @@
 from django.http import HttpResponseRedirect, JsonResponse
-from django.urls import reverse
 from django.conf import settings
 from urllib.parse import urlencode
 from rest_framework.views import APIView
-from .services import get_spotify_auth_url, exchange_code_for_token, get_spotify_access_token, refresh_spotify_token
+from .services import get_spotify_auth_url, exchange_code_for_token, check_valid_and_refresh
 from rest_framework.permissions import IsAuthenticated
 import secrets
 from .models import OAuthState, SpotifyToken
@@ -15,7 +14,10 @@ class SpotifyAuthView(APIView):
     def get(self, request, format=None):
         user = request.user
         # Check for existing token
-        token = get_spotify_access_token(user)
+        token = SpotifyToken.objects.filter(user=user).first()
+        if not check_valid_and_refresh(token):
+            token.delete()
+            token = None
         if token:
             params = {'success': 'true', 'details': 'Token already exists'}
             redirect_url = settings.FRONTEND_URL
@@ -28,7 +30,7 @@ class SpotifyAuthView(APIView):
         OAuthState.objects.create(user=user, state=state)
         scopes = 'user-read-recently-played'
         auth_url = get_spotify_auth_url(scopes, state)
-        return HttpResponseRedirect(auth_url)
+        return JsonResponse({'auth_url': auth_url})
     
 class SpotifyCallbackView(APIView):
     

@@ -6,18 +6,18 @@ from django.utils import timezone
 # Create your models here.
 class SpotifyToken(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    access_token = models.CharField(max_length=150)
-    token_type = models.CharField(max_length=150)
+    access_token = models.CharField(max_length=250)
+    token_type = models.CharField(max_length=250)
     scope = models.TextField()
     expires_in = models.DateTimeField()
-    refresh_token = models.CharField(max_length=150)
+    refresh_token = models.CharField(max_length=250)
 
     def __str__(self):
         return f"{self.user.email}'s Spotify Token"
     
 class OAuthState(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    state = models.CharField(max_length=150, unique=True)
+    state = models.CharField(max_length=250, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
