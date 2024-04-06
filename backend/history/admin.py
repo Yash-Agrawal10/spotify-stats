@@ -1,17 +1,17 @@
 from django.contrib import admin
-from .models import Song, History, Artist
+from .models import Track, History, Artist
 
 # Register your models here.
 class ArtistAdmin(admin.ModelAdmin):
     list_display = ('name',)
     search_fields = ('name',)
 
-class SongArtistInline(admin.TabularInline):
-    model = Song.artists.through
+class TrackArtistInline(admin.TabularInline):
+    model = Track.artists.through
     
-class SongAdmin(admin.ModelAdmin):
+class TrackAdmin(admin.ModelAdmin):
     list_display = ('title', 'get_artists', 'album',)
-    inlines = (SongArtistInline,)
+    inlines = (TrackArtistInline,)
     search_fields = ('title', 'artist', 'album',)
 
     def get_artists(self, obj):
@@ -19,9 +19,9 @@ class SongAdmin(admin.ModelAdmin):
     get_artists.short_description = 'Artists'
 
 class HistoryAdmin(admin.ModelAdmin):
-    list_display = ('user', 'song', 'played_at',)
-    search_fields = ('user__email', 'song__title', 'song__artists', 'song__album',)
+    list_display = ('user', 'track', 'played_at',)
+    search_fields = ('user__email', 'track__title', 'track__artists', 'track__album',)
 
 admin.site.register(Artist, ArtistAdmin)
-admin.site.register(Song, SongAdmin)
+admin.site.register(Track, TrackAdmin)
 admin.site.register(History, HistoryAdmin)
