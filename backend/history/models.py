@@ -29,4 +29,4 @@ class History(models.Model):
         ordering = ['-played_at']
 
     def __str__(self):
-        return f"{self.user.email} listened to {self.song} by {self.user} at {self.listened_at.strftime('%Y-%m-%d %H:%M:%S')}"
+        return f"{self.user.email} listened to {self.song} by {self.user} at {self.played_at.strftime('%Y-%m-%d %H:%M:%S')}"

@@ -26,7 +26,7 @@ def process_song(song_data):
 def update_history(user):
     recently_played = get_recently_played(user)
     if not recently_played:
-        return None
+        return False
     for item in recently_played:
         song = process_song(item['track'])
         played_at = item['played_at']
@@ -39,20 +39,20 @@ def update_history(user):
             played_at=played_at,
         )
         history.save()
+    return True
 
 # Get history
+def history_to_dict(history):
+    return {
+        'song': history.song.title,
+        'album': history.song.album,
+        'artists': [artist.name for artist in history.song.artists.all()],
+        'played_at': history.played_at,
+    }        
+
 def get_history(user):
-    history = user.history_set.all().order_by('-played_at')
+    history = History.objects.filter(user=user)
     response = []
     for item in history:
-        response.append({
-            'song': {
-                'id': item.song.spotify_id,
-                'title': item.song.title,
-                'album': item.song.album,
-                'artists': [artist.name for artist in item.song.artists.all()],
-                'duration_ms': item.song.duration_ms,
-            },
-            'played_at': item.played_at,
-        })
+        response.append(history_to_dict(item))
     return response

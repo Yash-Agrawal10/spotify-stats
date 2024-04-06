@@ -17,7 +17,7 @@ class UpdateHistoryView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         user = request.user
-        response = update_history(user)
-        if not response:
+        updated = update_history(user)
+        if not updated:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
