@@ -37,8 +37,8 @@ class Track(models.Model):
         return f"{self.title} by {artists}"
     
 class History(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='history')
-    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name='instances')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='histories')
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name='histories')
     played_at = models.DateTimeField()
 
     class Meta:
