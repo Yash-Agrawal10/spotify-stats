@@ -6,6 +6,7 @@ import { loginUser } from "./authSlice";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import api from "../../app/api/api";
 
 const LoginPage: React.FC = () => {
   // Local state
@@ -17,6 +18,11 @@ const LoginPage: React.FC = () => {
   // Hooks
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  // Helpers
+  const getSpotifyAuth = async () => {
+    await api.get("spotify/auth");
+  };
 
   // Event handlers
   const togglePassword = () => setShowPassword(!showPassword);
@@ -31,6 +37,7 @@ const LoginPage: React.FC = () => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     dispatch(loginUser(credentials));
+    getSpotifyAuth();
   };
 
   // Redirect to home if already logged in
