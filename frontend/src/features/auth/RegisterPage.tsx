@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
-import api from "../../app/api/api";
-import { isAxiosError } from "axios";
+import api, { processError } from "../../app/api/api";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
@@ -36,10 +35,7 @@ const RegisterPage: React.FC = () => {
       setEmail("");
       setPassword("");
     } catch (error: any) {
-      let errorMessage = "An unexpected error occurred";
-      if (isAxiosError(error)) {
-        errorMessage = error.response?.data.detail || errorMessage;
-      }
+      const errorMessage = processError(error);
       setMessage(errorMessage);
       setStatus("Failure");
     }

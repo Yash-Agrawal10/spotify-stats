@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../../app/state/store";
-import api from "../../app/api/api";
-import { isAxiosError } from "axios";
+import api, { processError } from "../../app/api/api";
 import { saveData, loadData, removeData } from "../../app/state/sessionStorage";
 
 // Interfaces
@@ -45,10 +44,7 @@ export const loginUser = createAsyncThunk<
     return user;
   } catch (error: any) {
     // Handle errors
-    let errorMessage = "An unexpected error occurred";
-    if (isAxiosError(error)) {
-      errorMessage = error.response?.data.detail || errorMessage;
-    }
+    const errorMessage = processError(error);
     return rejectWithValue(errorMessage);
   }
 });
