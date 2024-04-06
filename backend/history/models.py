@@ -6,15 +6,32 @@ class Artist(models.Model):
     spotify_id = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255, unique=True)
 
+    # genres
+    # popularity
+    # followers
+
     def __str__(self):
         return self.name
+    
+class Album(models.Model):
+    spotify_id = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
+    artists = models.ManyToManyField(Artist, related_name='albums')
+    release_date = models.DateField()
+
+    def __str__(self):
+        artists = ', '.join([artist.name for artist in self.artists.all()])
+        return f"{self.name} by {artists}"
 
 class Song(models.Model):
     spotify_id = models.CharField(max_length=255, unique=True)
     title = models.CharField(max_length=255)
     artists = models.ManyToManyField(Artist, related_name='songs')
-    album = models.CharField(max_length=255)
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, related_name='songs')
     duration_ms = models.IntegerField() # milliseconds
+    preview_url = models.URLField(null=True)
+    track_number = models.IntegerField()
+    # popularity
 
     def __str__(self):
         artists = ', '.join([artist.name for artist in self.artists.all()])
