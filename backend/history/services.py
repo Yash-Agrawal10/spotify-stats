@@ -39,3 +39,20 @@ def update_history(user):
             played_at=played_at,
         )
         history.save()
+
+# Get history
+def get_history(user):
+    history = user.history_set.all().order_by('-played_at')
+    response = []
+    for item in history:
+        response.append({
+            'song': {
+                'id': item.song.spotify_id,
+                'title': item.song.title,
+                'album': item.song.album,
+                'artists': [artist.name for artist in item.song.artists.all()],
+                'duration_ms': item.song.duration_ms,
+            },
+            'played_at': item.played_at,
+        })
+    return response
