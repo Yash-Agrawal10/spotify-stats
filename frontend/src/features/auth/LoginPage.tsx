@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import api from "../../app/api/api";
+import { isAxiosError } from "axios";
 
 const LoginPage: React.FC = () => {
   // Local state
@@ -21,7 +22,15 @@ const LoginPage: React.FC = () => {
 
   // Helpers
   const getSpotifyAuth = async () => {
-    await api.get("spotify/auth");
+    try {
+      await api.get("spotify/auth");
+    } catch (error: any) {
+      let errorMessage = "An unexpected error occurred";
+      if (isAxiosError(error)) {
+        errorMessage = error.response?.data.detail || errorMessage;
+      }
+      error = errorMessage;
+    }
   };
 
   // Event handlers
