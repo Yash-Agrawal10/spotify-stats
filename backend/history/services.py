@@ -1,6 +1,7 @@
 from .models import Track, History, Artist, Album
 from .serializers import ArtistSerializer, AlbumSerializer, TrackSerializer, HistorySerializer
 from spotify.services import get_recently_played
+from django.db.models import Count, F
 
 # Update history
 def process_artist(artist_data):
@@ -62,6 +63,9 @@ def process_history(user, history_data):
         'track': track_pk,
         'played_at': history_data['played_at'],
     }
+    history = History.objects.filter(user=user, track=track_pk, played_at=history_data['played_at']).first()
+    if history:
+        return history
     history_serializer = HistorySerializer(data=filtered_data)
     if history_serializer.is_valid():
         history = history_serializer.save()
@@ -74,19 +78,40 @@ def update_history(user):
         process_history(user, item)
     return True
 
-# Get history
-def history_to_dict(history):
-    history_dict = {
+# Analyze history
+def get_readable_history(history):
+    data = {
         'track': history.track.title,
-        'album': history.track.album,
         'artists': [artist.name for artist in history.track.artists.all()],
+        'album': history.track.album.name,
         'played_at': history.played_at,
-    }     
-    return history_dict
+    }
+    return data
 
 def get_history(user):
     history = History.objects.filter(user=user)
-    response = []
-    for item in history:
-        response.append(history_to_dict(item))
-    return response
+    readable_history = [get_readable_history(item) for item in history]
+    return readable_history
+
+def get_top(user, type:str, limit:int=10):
+    if type == 'tracks':
+        group_value = 'track'
+        name = 'track__title'
+    elif type == 'albums':
+        group_value = 'track__album'
+        name = 'track__album__name'
+    elif type == 'artists':
+        group_value = 'track__artists'
+        name = 'track__artists__name'
+    else:
+        raise Exception('Invalid type')
+
+    top = (
+        History.objects.filter(user=user)
+        .values(group_value)
+        .annotate(name=F(name))
+        .annotate(streams=Count(group_value))
+        .order_by('-streams')[:limit]
+        .values('name', 'streams')
+    )
+    return list(top)

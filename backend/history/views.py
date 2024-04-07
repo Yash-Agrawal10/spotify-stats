@@ -3,16 +3,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .services import update_history, get_history
+from .services import update_history, get_history, get_top
 
 # Create your views here.
-class GetHistoryView(APIView):
-    permission_classes = [IsAuthenticated]
-    def get(self, request):
-        user = request.user
-        history = get_history(user)
-        return Response(history, status=status.HTTP_200_OK)
-
 class UpdateHistoryView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
@@ -21,3 +14,25 @@ class UpdateHistoryView(APIView):
         if not updated:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_200_OK)
+
+class GetHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        history = get_history(user)
+        return Response(history, status=status.HTTP_200_OK)
+    
+class GetTopView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        limit = request.GET.get('limit')
+        top_artists = get_top(user, 'artists', limit)
+        top_tracks = get_top(user, 'tracks', limit)
+        top_albums = get_top(user, 'albums', limit)
+        data = {
+            'artists': top_artists,
+            'tracks': top_tracks,
+            'albums': top_albums,
+        }
+        return Response(data, status=status.HTTP_200_OK)
