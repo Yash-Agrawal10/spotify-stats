@@ -8,6 +8,7 @@ class Artist(models.Model):
     # genres
     # popularity
     # followers
+    # images
 
     def __str__(self):
         return self.name
@@ -17,6 +18,7 @@ class Album(models.Model):
     name = models.CharField(max_length=255)
     artists = models.ManyToManyField(Artist, related_name='albums')
     release_date = models.DateField()
+    # images
 
     def __str__(self):
         artists = ', '.join([artist.name for artist in self.artists.all()])

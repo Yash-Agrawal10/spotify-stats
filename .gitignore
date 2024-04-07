@@ -8,6 +8,7 @@ db.sqlite3-journal
 /mediafiles/*
 __pycache__/
 /.vscode/
+*.code-workspace
 
 # coverage result
 .coverage
