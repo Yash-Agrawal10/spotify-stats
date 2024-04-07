@@ -133,7 +133,7 @@ const UserPage: React.FC = () => {
               setCurrentDisplay("tracks");
             }}
           >
-            Top Songs
+            Top Tracks
           </Button>
 
           <Button
@@ -166,7 +166,7 @@ const UserPage: React.FC = () => {
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Song</th>
+                  <th>Track</th>
                   <th>Album</th>
                   <th>Artists</th>
                   <th>Played At</th>
@@ -188,7 +188,7 @@ const UserPage: React.FC = () => {
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Song</th>
+                  <th>Track</th>
                   <th>Streams</th>
                 </tr>
               </thead>
