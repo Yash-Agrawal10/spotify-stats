@@ -13,8 +13,8 @@ const Header = () => {
   const authLinks = (
     <>
       <Nav.Link href="/account">Account</Nav.Link>
-      <Nav.Link href="/logout">Log Out</Nav.Link>
       <Nav.Link href="/history">History</Nav.Link>
+      <Nav.Link href="/logout">Log Out</Nav.Link>
     </>
   );
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Track, History, Artist
+from .models import Track, HistoryItem, Artist
 
 # Register your models here.
 class ArtistAdmin(admin.ModelAdmin):
@@ -18,10 +18,10 @@ class TrackAdmin(admin.ModelAdmin):
         return ', '.join([artist.name for artist in obj.artists.all()])
     get_artists.short_description = 'Artists'
 
-class HistoryAdmin(admin.ModelAdmin):
+class HistoryItemAdmin(admin.ModelAdmin):
     list_display = ('user', 'track', 'played_at',)
     search_fields = ('user__email', 'track__title', 'track__artists', 'track__album',)
 
 admin.site.register(Artist, ArtistAdmin)
 admin.site.register(Track, TrackAdmin)
-admin.site.register(History, HistoryAdmin)
+admin.site.register(HistoryItem, HistoryItemAdmin)

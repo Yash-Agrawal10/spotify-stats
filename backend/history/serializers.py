@@ -1,4 +1,4 @@
-from .models import Track, History, Artist, Album
+from .models import Track, HistoryItem, Artist, Album
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 
 class ArtistSerializer(ModelSerializer):
@@ -21,9 +21,9 @@ class TrackSerializer(ModelSerializer):
         model = Track
         fields = '__all__'
 
-class HistorySerializer(ModelSerializer):
+class HistoryItemSerializer(ModelSerializer):
     track = PrimaryKeyRelatedField(queryset=Track.objects.all())
 
     class Meta:
-        model = History
+        model = HistoryItem
         fields = '__all__'

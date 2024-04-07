@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Container, Card, Row, Button, Table } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Row,
+  Button,
+  ButtonGroup,
+  Table,
+} from "react-bootstrap";
 import { loadData } from "../../app/state/sessionStorage";
 import api, { processError } from "../../app/api/api";
 
 // Interfaces
 interface HistoryItem {
-  song: string;
+  track: string;
   album: string;
   artists: string[];
   played_at: string;
@@ -47,7 +54,7 @@ const UserPage: React.FC = () => {
       const response = await api.get("/history/top/", { headers });
       if (response.status === 200) {
         setTopArtists(response.data.artists);
-        setTopTracks(response.data.songs);
+        setTopTracks(response.data.tracks);
         setTopAlbums(response.data.albums);
       }
     } catch (error) {
@@ -76,6 +83,22 @@ const UserPage: React.FC = () => {
     fetchTop();
   }, []);
 
+  // Helpers
+  function formatDateTime(datetime: string): string {
+    const options: Intl.DateTimeFormatOptions = {
+      month: 'long', // "January", "February", etc.
+      day: 'numeric', // 1, 2, ..., 31
+      year: 'numeric', // 2024
+      hour: 'numeric', // 12-hour format
+      minute: '2-digit', // 00, 01, ..., 59
+      second: '2-digit', // 00, 01, ..., 59
+      hour12: true // Use AM/PM
+    };
+    const dateObj = new Date(datetime);
+    return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+  }
+  
+
   // JSX
   return (
     <Container className="mt-5">
@@ -92,45 +115,47 @@ const UserPage: React.FC = () => {
       </Row>
 
       <Row className="mt-3">
-        <Button
-          variant="primary"
-          onClick={(e) => {
-            e.preventDefault();
-            setCurrentDisplay("history");
-          }}
-        >
-          History
-        </Button>
+        <ButtonGroup>
+          <Button
+            variant={currentDisplay == "history" ? "primary" : "secondary"}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentDisplay("history");
+            }}
+          >
+            History
+          </Button>
 
-        <Button
-          variant="primary"
-          onClick={(e) => {
-            e.preventDefault();
-            setCurrentDisplay("tracks");
-          }}
-        >
-          Top Songs
-        </Button>
+          <Button
+            variant={currentDisplay == "tracks" ? "primary" : "secondary"}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentDisplay("tracks");
+            }}
+          >
+            Top Songs
+          </Button>
 
-        <Button
-          variant="primary"
-          onClick={(e) => {
-            e.preventDefault();
-            setCurrentDisplay("artists");
-          }}
-        >
-          Top Artists
-        </Button>
+          <Button
+            variant={currentDisplay == "artists" ? "primary" : "secondary"}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentDisplay("artists");
+            }}
+          >
+            Top Artists
+          </Button>
 
-        <Button
-          variant="primary"
-          onClick={(e) => {
-            e.preventDefault();
-            setCurrentDisplay("albums");
-          }}
-        >
-          Top Albums
-        </Button>
+          <Button
+            variant={currentDisplay == "albums" ? "primary" : "secondary"}
+            onClick={(e) => {
+              e.preventDefault();
+              setCurrentDisplay("albums");
+            }}
+          >
+            Top Albums
+          </Button>
+        </ButtonGroup>
       </Row>
 
       <Row className="mt-3">
@@ -150,10 +175,10 @@ const UserPage: React.FC = () => {
               <tbody>
                 {history.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.song}</td>
+                    <td>{item.track}</td>
                     <td>{item.album}</td>
                     <td>{item.artists.join(", ")}</td>
-                    <td>{item.played_at}</td>
+                    <td>{formatDateTime(item.played_at)}</td>
                   </tr>
                 ))}
               </tbody>

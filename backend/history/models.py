@@ -36,7 +36,7 @@ class Track(models.Model):
         artists = ', '.join([artist.name for artist in self.artists.all()])
         return f"{self.title} by {artists}"
     
-class History(models.Model):
+class HistoryItem(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='histories')
     track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name='histories')
     played_at = models.DateTimeField()
