@@ -74,11 +74,15 @@ const UserPage: React.FC = () => {
       const errorMessage: string = processError(error);
       setError(errorMessage);
     }
-    if (!error) fetchHistory();
+    if (!error) {
+      fetchHistory();
+      fetchTop();
+    }
   };
 
   // Effects
   useEffect(() => {
+    setError(null);
     fetchHistory();
     fetchTop();
   }, []);
@@ -86,18 +90,17 @@ const UserPage: React.FC = () => {
   // Helpers
   function formatDateTime(datetime: string): string {
     const options: Intl.DateTimeFormatOptions = {
-      month: 'long', // "January", "February", etc.
-      day: 'numeric', // 1, 2, ..., 31
-      year: 'numeric', // 2024
-      hour: 'numeric', // 12-hour format
-      minute: '2-digit', // 00, 01, ..., 59
-      second: '2-digit', // 00, 01, ..., 59
-      hour12: true // Use AM/PM
+      month: "long", // "January", "February", etc.
+      day: "numeric", // 1, 2, ..., 31
+      year: "numeric", // 2024
+      hour: "numeric", // 12-hour format
+      minute: "2-digit", // 00, 01, ..., 59
+      second: "2-digit", // 00, 01, ..., 59
+      hour12: true, // Use AM/PM
     };
     const dateObj = new Date(datetime);
-    return new Intl.DateTimeFormat('en-US', options).format(dateObj);
+    return new Intl.DateTimeFormat("en-US", options).format(dateObj);
   }
-  
 
   // JSX
   return (

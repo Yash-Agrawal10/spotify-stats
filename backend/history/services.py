@@ -1,7 +1,8 @@
 from .models import Track, HistoryItem, Artist, Album
 from .serializers import ArtistSerializer, AlbumSerializer, TrackSerializer, HistoryItemSerializer
 from spotify.services import get_recently_played
-from django.db.models import Count, F
+from django.db.models import Count, F, Value, CharField
+from django.db.models.functions import Concat
 
 # Update history
 def process_artist(artist_data):
@@ -96,22 +97,23 @@ def get_history(user):
 def get_top(user, type:str, limit:int=10):
     if type == 'tracks':
         group_value = 'track'
-        name = 'track__title'
+        name = Concat(F('track__title'), Value(' by '), F('track__artists__name'), output_field=CharField())
     elif type == 'albums':
         group_value = 'track__album'
-        name = 'track__album__name'
+        name = Concat(F('track__album__name'), Value(' by '), F('track__album__artists__name'), output_field=CharField())
     elif type == 'artists':
         group_value = 'track__artists'
-        name = 'track__artists__name'
+        name = F('track__artists__name')
     else:
         raise Exception('Invalid type')
 
     top = (
         HistoryItem.objects.filter(user=user)
         .values(group_value)
-        .annotate(name=F(name))
+        .annotate(name=name)
         .annotate(streams=Count(group_value))
         .order_by('-streams')[:limit]
         .values('name', 'streams')
     )
+
     return list(top)
