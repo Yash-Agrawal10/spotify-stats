@@ -23,7 +23,7 @@ interface TopItem {
   streams: number;
 }
 
-const UserPage: React.FC = () => {
+const HistoryPage: React.FC = () => {
   // Local State
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [topArtists, setTopArtists] = useState<TopItem[]>([]);
@@ -259,4 +259,4 @@ const UserPage: React.FC = () => {
   );
 };
 
-export default UserPage;
+export default HistoryPage;
