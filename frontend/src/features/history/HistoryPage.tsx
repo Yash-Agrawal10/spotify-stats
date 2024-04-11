@@ -59,7 +59,7 @@ const HistoryPage: React.FC = () => {
   // Session Storage
   const accessToken: string = loadData("access_token");
 
-  // Event Handlers
+  // Event Handlers (handleUpdateHistory will be automated on launch)
   const handleUpdateHistory = async () => {
     try {
       const headers = { Authorization: `Bearer ${loadData("access_token")}` };
