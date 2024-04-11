@@ -54,7 +54,7 @@ export const fetchHistory = createAsyncThunk<
 >("history/history", async (accessToken, { rejectWithValue }) => {
   try {
     const headers = { Authorization: `Bearer ${accessToken}` };
-    const params = { limit: 10 };
+    const params = { limit: 50 };
     const response = await api.get("/history/history/", { headers, params });
     return response.data;
   } catch (error: any) {
@@ -70,7 +70,7 @@ export const fetchTop = createAsyncThunk<
 >("history/top", async (accessToken, { rejectWithValue }) => {
   try {
     const headers = { Authorization: `Bearer ${accessToken}` };
-    const params = { limit: 10 };
+    const params = { limit: 50 };
     const response = await api.get("/history/top/", { headers, params });
     return response.data;
   } catch (error: any) {

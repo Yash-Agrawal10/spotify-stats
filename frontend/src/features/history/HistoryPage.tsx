@@ -6,6 +6,7 @@ import {
   Col,
   Button,
   ButtonGroup,
+  Dropdown,
 } from "react-bootstrap";
 import { loadData } from "../../app/state/sessionStorage";
 import api, { processError } from "../../app/api/api";
@@ -35,8 +36,8 @@ const topArtistHeaders: TableColumn[] = [
 ];
 const topAlbumHeaders: TableColumn[] = [
   { key: "name", label: "Album", type: "string" },
-  { key: "artists", label: "Artists", type: "array"},
-  { key: "streams", label: "Streams", type: "number"},
+  { key: "artists", label: "Artists", type: "array" },
+  { key: "streams", label: "Streams", type: "number" },
 ];
 
 const HistoryPage: React.FC = () => {
@@ -52,6 +53,7 @@ const HistoryPage: React.FC = () => {
     "history" | "tracks" | "artists" | "albums"
   >("history");
   const [error, setError] = useState<string | null>(null);
+  const [itemCount, setItemCount] = useState<number>(10);
 
   // Session Storage
   const accessToken: string = loadData("access_token");
@@ -72,6 +74,13 @@ const HistoryPage: React.FC = () => {
       dispatch(fetchHistory(accessToken));
       dispatch(fetchTop(accessToken));
     }
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const target = event.target as HTMLButtonElement;
+    setCurrentDisplay(
+      target.name as "history" | "tracks" | "artists" | "albums"
+    );
   };
 
   // Effects
@@ -102,30 +111,51 @@ const HistoryPage: React.FC = () => {
         <Col>
           <ButtonGroup>
             <Button
+              name="history"
               variant={currentDisplay == "history" ? "primary" : "secondary"}
-              onClick={() => setCurrentDisplay("history")}
+              onClick={handleClick}
             >
               History
             </Button>
             <Button
+              name="tracks"
               variant={currentDisplay == "tracks" ? "primary" : "secondary"}
-              onClick={() => setCurrentDisplay("tracks")}
+              onClick={handleClick}
             >
               Top Tracks
             </Button>
             <Button
+              name="artists"
               variant={currentDisplay == "artists" ? "primary" : "secondary"}
-              onClick={() => setCurrentDisplay("artists")}
+              onClick={handleClick}
             >
               Top Artists
             </Button>
             <Button
+              name="albums"
               variant={currentDisplay == "albums" ? "primary" : "secondary"}
-              onClick={() => setCurrentDisplay("albums")}
+              onClick={handleClick}
             >
               Top Albums
             </Button>
           </ButtonGroup>
+        </Col>
+        <Col xs="auto">
+          <Dropdown as={ButtonGroup}>
+            <Dropdown.Toggle variant="success" id="dropdown-item-count">
+              Display {itemCount} Items
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {[5, 10, 20, 50].map((number) => (
+                <Dropdown.Item
+                  key={number}
+                  onClick={() => setItemCount(number)}
+                >
+                  {number}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
         </Col>
       </Row>
 
@@ -133,16 +163,28 @@ const HistoryPage: React.FC = () => {
         <Col>
           {(error && <p>{error}</p>) ||
             (currentDisplay === "history" && (
-              <HistoryTable data={history} headers={historyHeaders} />
+              <HistoryTable
+                data={history.slice(0, itemCount)}
+                headers={historyHeaders}
+              />
             )) ||
             (currentDisplay === "tracks" && (
-              <HistoryTable data={topTracks} headers={topTrackHeaders} />
+              <HistoryTable
+                data={topTracks.slice(0, itemCount)}
+                headers={topTrackHeaders}
+              />
             )) ||
             (currentDisplay === "artists" && (
-              <HistoryTable data={topArtists} headers={topArtistHeaders} />
+              <HistoryTable
+                data={topArtists.slice(0, itemCount)}
+                headers={topArtistHeaders}
+              />
             )) ||
             (currentDisplay === "albums" && (
-              <HistoryTable data={topAlbums} headers={topAlbumHeaders} />
+              <HistoryTable
+                data={topAlbums.slice(0, itemCount)}
+                headers={topAlbumHeaders}
+              />
             ))}
         </Col>
       </Row>

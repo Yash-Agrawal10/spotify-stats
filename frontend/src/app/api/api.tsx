@@ -16,6 +16,7 @@ export const processError = (error: any) => {
   if (isAxiosError(error)) {
     errorMessage = error.response?.data.detail || errorMessage;
   }
+  // Add in error handling that re logs in a user if their token expired
   return errorMessage;
 };
 
