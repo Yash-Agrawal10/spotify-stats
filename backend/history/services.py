@@ -5,41 +5,58 @@ from django.db.models import Count, F, Value, CharField
 from django.db.models.functions import Concat
 
 # Update history
+def convert_spotify_release_date(release_date: str, precision: str) -> str:
+    if precision == 'year':
+        # Default to January 1st of the given year
+        return f"{release_date}-01-01"
+    elif precision == 'month':
+        # Default to the first day of the given month
+        return f"{release_date}-01"
+    elif precision == 'day':
+        # The date is already in the correct format
+        return release_date
+    else:
+        raise ValueError(f"Unknown precision: {precision}")
+
+
 def process_artist(artist_data):
-    artist = Artist.objects.filter(spotify_id=artist_data['id']).first()
-    if artist:
-        return artist
     filtered_data = {
         'spotify_id': artist_data['id'],
         'name': artist_data['name'],
     }
-    artist_serializer = ArtistSerializer(data=filtered_data)
+    try:
+        artist = Artist.objects.get(spotify_id=artist_data['id'])
+        artist_serializer = ArtistSerializer(artist, data=filtered_data)
+    except:
+        artist_serializer = ArtistSerializer(data=filtered_data)
     if artist_serializer.is_valid():
         artist = artist_serializer.save()
         return artist
-    raise Exception(artist_serializer.errors)
+    else:
+        raise Exception(artist_serializer.errors)
     
 def process_album(album_data):
-    album = Album.objects.filter(spotify_id=album_data['id']).first()
-    if album:
-        return album
     artist_pks = [process_artist(artist).pk for artist in album_data['artists']]
+    date = convert_spotify_release_date(album_data['release_date'], album_data['release_date_precision'])
     filtered_data = {
         'spotify_id': album_data['id'],
         'name': album_data['name'],
         'artists': artist_pks,
-        'release_date': album_data['release_date'],
+        'release_date': date,
+        'release_date_precision': album_data['release_date_precision'],
     }
-    album_serializer = AlbumSerializer(data=filtered_data)
+    try:
+        album = Album.objects.get(spotify_id=album_data['id'])
+        album_serializer = AlbumSerializer(album, data=filtered_data)
+    except:
+        album_serializer = AlbumSerializer(data=filtered_data)
     if album_serializer.is_valid():
         album = album_serializer.save()
         return album
-    raise Exception(album_serializer.errors)
+    else:
+        raise Exception(album_serializer.errors)
 
 def process_track(track_data):
-    track = Track.objects.filter(spotify_id=track_data['id']).first()
-    if track:
-        return track
     album_pk = process_album(track_data['album']).pk
     artist_pks = [process_artist(artist).pk for artist in track_data['artists']]
     filtered_data = {
@@ -51,11 +68,16 @@ def process_track(track_data):
         'preview_url': track_data['preview_url'],
         'track_number': track_data['track_number'],
     }
-    track_serializer = TrackSerializer(data=filtered_data)
+    try:
+        track = Track.objects.get(spotify_id=track_data['id'])
+        track_serializer = TrackSerializer(track, data=filtered_data)
+    except:
+        track_serializer = TrackSerializer(data=filtered_data)
     if track_serializer.is_valid():
         track = track_serializer.save()
         return track
-    raise Exception(track_serializer.errors)
+    else:
+        raise Exception(track_serializer.errors)
 
 def process_history_item(user, history_item_data):
     track_pk = process_track(history_item_data['track']).pk

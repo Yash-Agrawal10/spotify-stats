@@ -10,7 +10,7 @@ import HomePage from "../features/main/HomePage";
 import RegisterPage from "../features/auth/RegisterPage";
 import LoginPage from "../features/auth/LoginPage";
 import LogoutPage from "../features/auth/LogoutPage";
-import UserPage from "../features/auth/UserPage";
+import UserPage from "../features/user/UserPage";
 import HistoryPage from "../features/history/HistoryPage";
 
 const App: React.FC = () => {

@@ -1,31 +1,27 @@
 import React from "react";
-import { Button } from "react-bootstrap";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import { useAppDispatch } from "../../app/state/hooks";
 import { logout } from "./authSlice";
 import { useNavigate } from "react-router-dom";
-import { Container, Row } from "react-bootstrap";
 
 const LogoutPage: React.FC = () => {
-  // Hooks
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // Event handlers
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
   };
 
-  // JSX
   return (
-    <Container>
-      <Row>
-        <h1>Logout</h1>
-      </Row>
-      <Row>
-        <Button variant="danger" onClick={handleLogout}>
-          Logout
-        </Button>
+    <Container className="my-5">
+      <Row className="justify-content-center">
+        <Col xs={12} md={8} lg={6} className="text-center">
+          <h1>Logout</h1>
+          <Button variant="danger" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Col>
       </Row>
     </Container>
   );

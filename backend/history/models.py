@@ -18,6 +18,7 @@ class Album(models.Model):
     name = models.CharField(max_length=255)
     artists = models.ManyToManyField(Artist, related_name='albums')
     release_date = models.DateField()
+    release_date_precision = models.CharField(max_length=10)
     # images
 
     def __str__(self):

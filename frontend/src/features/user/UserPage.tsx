@@ -2,7 +2,7 @@
 import React from "react";
 import { Container, Card } from "react-bootstrap";
 import { useAppSelector } from "../../app/state/hooks";
-import { selectAuth } from "./authSlice";
+import { selectAuth } from "../auth/authSlice";
 
 const UserPage: React.FC = () => {
   // Redux state
