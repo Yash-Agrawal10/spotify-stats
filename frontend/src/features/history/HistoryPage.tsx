@@ -79,7 +79,7 @@ const HistoryPage: React.FC = () => {
 
   // JSX
   return (
-    <Container className="mt-5">
+    <Container className="my-5">
       <Row>
         <Col>
           <Card>

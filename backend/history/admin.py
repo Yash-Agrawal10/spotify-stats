@@ -13,9 +13,9 @@ class ArtistAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class AlbumAdmin(admin.ModelAdmin):
-    list_display = ('title', 'get_artists',)
+    list_display = ('name', 'get_artists',)
     inlines = (AlbumArtistInline,)
-    search_fields = ('title', 'artist',)
+    search_fields = ('name', 'artist',)
 
     def get_artists(self, obj):
         return ', '.join([artist.name for artist in obj.artists.all()])

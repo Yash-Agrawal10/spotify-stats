@@ -21,7 +21,7 @@ class GetHistoryView(APIView):
 
     def get(self, request):
         user = request.user
-        limit = request.GET.get('limit')
+        limit = int(request.GET.get('limit'))
         history = get_history(user, limit)
         data = {
             'history': history,
@@ -33,7 +33,7 @@ class GetTopView(APIView):
 
     def get(self, request):
         user = request.user
-        limit = request.GET.get('limit')
+        limit = int(request.GET.get('limit'))
         top_artists = get_top(user, 'artists', limit)
         top_tracks = get_top(user, 'tracks', limit)
         top_albums = get_top(user, 'albums', limit)
