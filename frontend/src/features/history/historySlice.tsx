@@ -42,9 +42,8 @@ export const fetchHistory = createAsyncThunk<
 >("history/history", async (accessToken, { rejectWithValue }) => {
   try {
     const headers = { Authorization: `Bearer ${accessToken}` };
-    const response = await api.get("/history/history/", {
-      headers,
-    });
+    const params = { limit: 10 };
+    const response = await api.get("/history/history/", { headers, params });
     return response.data;
   } catch (error: any) {
     const errorMessage = processError(error);
@@ -59,7 +58,8 @@ export const fetchTop = createAsyncThunk<
 >("history/top", async (accessToken, { rejectWithValue }) => {
   try {
     const headers = { Authorization: `Bearer ${accessToken}` };
-    const response = await api.get("/history/top/", { headers });
+    const params = { limit: 10 };
+    const response = await api.get("/history/top/", { headers, params });
     return response.data;
   } catch (error: any) {
     const errorMessage = processError(error);
@@ -88,14 +88,20 @@ const historySlice = createSlice({
       .addCase(fetchHistory.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(fetchHistory.fulfilled, (state, action:PayloadAction<HistoryResponse>) => {
-        state.status = "succeeded";
-        state.history = action.payload.history;
-      })
-      .addCase(fetchHistory.rejected, (state, action:PayloadAction<string | undefined>) => {
-        state.status = "failed";
-        state.error = action.payload as string;
-      })
+      .addCase(
+        fetchHistory.fulfilled,
+        (state, action: PayloadAction<HistoryResponse>) => {
+          state.status = "succeeded";
+          state.history = action.payload.history;
+        }
+      )
+      .addCase(
+        fetchHistory.rejected,
+        (state, action: PayloadAction<string | undefined>) => {
+          state.status = "failed";
+          state.error = action.payload as string;
+        }
+      )
       .addCase(fetchTop.pending, (state) => {
         state.status = "loading";
       })

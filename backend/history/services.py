@@ -1,8 +1,11 @@
 from .models import Track, HistoryItem, Artist, Album
 from .serializers import ArtistSerializer, AlbumSerializer, TrackSerializer, HistoryItemSerializer
 from spotify.services import get_recently_played
+
 from django.db.models import Count, F, Value, CharField
 from django.db.models.functions import Concat
+
+from users.models import UserAccount
 
 # Update history
 def convert_spotify_release_date(release_date: str, precision: str) -> str:
@@ -79,23 +82,25 @@ def process_track(track_data):
     else:
         raise Exception(track_serializer.errors)
 
-def process_history_item(user, history_item_data):
+def process_history_item(user:UserAccount, history_item_data):
     track_pk = process_track(history_item_data['track']).pk
     filtered_data = {
         'user': user.pk,
         'track': track_pk,
         'played_at': history_item_data['played_at'],
     }
-    history_item = HistoryItem.objects.filter(user=user, track=track_pk, played_at=history_item_data['played_at']).first()
-    if history_item:
-        return history_item
-    history_item_serializer = HistoryItemSerializer(data=filtered_data)
+    try:
+        history_item = HistoryItem.objects.get(user=user, track=track_pk, played_at=history_item_data['played_at'])
+        history_item_serializer = HistoryItemSerializer(history_item, data=filtered_data)
+    except:
+        history_item_serializer = HistoryItemSerializer(data=filtered_data)
     if history_item_serializer.is_valid():
         history_item = history_item_serializer.save()
         return history_item
-    raise Exception(history_item_serializer.errors)
+    else:
+        raise Exception(history_item_serializer.errors)
 
-def update_history(user):
+def update_history(user:UserAccount):
     history_data = get_recently_played(user)
     for item in history_data:
         process_history_item(user, item)
@@ -111,12 +116,12 @@ def get_readable_history_item(history_item):
     }
     return data
 
-def get_history(user):
-    history = HistoryItem.objects.filter(user=user)
+def get_history(user:UserAccount, limit:int=25):
+    history = HistoryItem.objects.filter(user=user)[:limit]
     readable_history = [get_readable_history_item(item) for item in history]
     return readable_history
 
-def get_top(user, type:str, limit:int=10):
+def get_top(user:UserAccount, type:str, limit:int=10):
     if type == 'tracks':
         group_value = 'track'
         name = Concat(F('track__title'), Value(' by '), F('track__artists__name'), output_field=CharField())

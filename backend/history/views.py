@@ -8,6 +8,7 @@ from .services import update_history, get_history, get_top
 # Create your views here.
 class UpdateHistoryView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         user = request.user
         updated = update_history(user)
@@ -17,13 +18,19 @@ class UpdateHistoryView(APIView):
 
 class GetHistoryView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = request.user
-        history = get_history(user)
-        return Response({"history": history}, status=status.HTTP_200_OK)
+        limit = request.GET.get('limit')
+        history = get_history(user, limit)
+        data = {
+            'history': history,
+        }
+        return Response(data, status=status.HTTP_200_OK)
     
 class GetTopView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         user = request.user
         limit = request.GET.get('limit')
