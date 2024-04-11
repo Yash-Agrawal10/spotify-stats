@@ -15,31 +15,28 @@ import HistoryTable from "./HistoryTable";
 import { selectHistory } from "./historySlice";
 
 // Interfaces
-interface TableColumn {
-  key: string;
-  label: string;
-}
+import { TableColumn } from "./HistoryTable";
 
 // Constants
 const historyHeaders: TableColumn[] = [
-  { key: "track", label: "Track" },
-  { key: "album", label: "Album" },
-  { key: "artists", label: "Artists" },
-  { key: "played_at", label: "Played At" },
+  { key: "track", label: "Track", type: "string" },
+  { key: "album", label: "Album", type: "string" },
+  { key: "artists", label: "Artists", type: "array" },
+  { key: "played_at", label: "Played At", type: "date" },
 ];
 const topTrackHeaders: TableColumn[] = [
-  { key: "name", label: "Track" },
-  { key: "artists", label: "Artists" },
-  { key: "streams", label: "Streams" },
+  { key: "name", label: "Track", type: "string" },
+  { key: "artists", label: "Artists", type: "array" },
+  { key: "streams", label: "Streams", type: "number" },
 ];
 const topArtistHeaders: TableColumn[] = [
-  { key: "name", label: "Artist" },
-  { key: "streams", label: "Streams" },
+  { key: "name", label: "Artist", type: "string" },
+  { key: "streams", label: "Streams", type: "number" },
 ];
 const topAlbumHeaders: TableColumn[] = [
-  { key: "name", label: "Album" },
-  { key: "artists", label: "Artists" },
-  { key: "streams", label: "Streams" },
+  { key: "name", label: "Album", type: "string" },
+  { key: "artists", label: "Artists", type: "array"},
+  { key: "streams", label: "Streams", type: "number"},
 ];
 
 const HistoryPage: React.FC = () => {
