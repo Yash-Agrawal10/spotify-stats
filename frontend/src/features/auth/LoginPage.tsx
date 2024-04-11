@@ -66,6 +66,7 @@ const LoginPage: React.FC = () => {
                 variant="outline-secondary"
                 onClick={togglePassword}
                 className="mt-2"
+                size="sm"
               >
                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
               </Button>
