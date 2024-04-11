@@ -4,6 +4,7 @@ from spotify.services import get_recently_played
 
 from django.db.models import Count, F, Value, CharField
 from django.db.models.functions import Concat
+from django.contrib.postgres.aggregates import ArrayAgg
 
 from users.models import UserAccount
 
@@ -122,7 +123,7 @@ def get_history(user:UserAccount, limit:int=25):
     return readable_history
 
 def get_top_artists(user:UserAccount, limit:int=10):
-    top = (
+    top_artists = (
         HistoryItem.objects.filter(user=user)
         .values('track__artists')
         .annotate(name=F('track__artists__name'))
@@ -130,31 +131,28 @@ def get_top_artists(user:UserAccount, limit:int=10):
         .order_by('-streams')[:limit]
         .values('name', 'streams')
     )
-
-    return list(top)
+    return list(top_artists)
 
 def get_top_tracks(user:UserAccount, limit:int=10):
-    top = (
+    top_tracks = (
         HistoryItem.objects.filter(user=user)
         .values('track')
+        .annotate(streams=Count('id', distinct=True))
         .annotate(name=F('track__title'))
-        .annotate(artists=F('track__artists__name'))
-        .annotate(streams=Count('track'))
+        .annotate(artists=ArrayAgg('track__artists__name', distinct=True))
         .order_by('-streams')[:limit]
-        .values('name', 'streams')
+        .values('name', 'artists', 'streams')
     )
-
-    return list(top)
+    return list(top_tracks)
 
 def get_top_albums(user:UserAccount, limit:int=10):
-    top = (
+    top_albums = (
         HistoryItem.objects.filter(user=user)
         .values('track__album')
+        .annotate(streams=Count('id', distinct=True))
         .annotate(name=F('track__album__name'))
-        .annotate(artists=Concat('track__album__artists__name', Value(' '), output_field=CharField()))
-        .annotate(streams=Count('track__album'))
+        .annotate(artists=ArrayAgg('track__album__artists__name', distinct=True))
         .order_by('-streams')[:limit]
-        .values('name', 'streams')
+        .values('name', 'artists', 'streams')
     )
-
-    return list(top)
+    return list(top_albums)

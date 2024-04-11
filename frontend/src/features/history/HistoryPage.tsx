@@ -12,6 +12,7 @@ import api, { processError } from "../../app/api/api";
 import { useAppDispatch, useAppSelector } from "../../app/state/hooks";
 import { fetchHistory, fetchTop } from "./historySlice";
 import HistoryTable from "./HistoryTable";
+import { selectHistory } from "./historySlice";
 
 // Interfaces
 interface TableColumn {
@@ -19,36 +20,46 @@ interface TableColumn {
   label: string;
 }
 
+// Constants
+const historyHeaders: TableColumn[] = [
+  { key: "track", label: "Track" },
+  { key: "album", label: "Album" },
+  { key: "artists", label: "Artists" },
+  { key: "played_at", label: "Played At" },
+];
+const topTrackHeaders: TableColumn[] = [
+  { key: "name", label: "Track" },
+  { key: "artists", label: "Artists" },
+  { key: "streams", label: "Streams" },
+];
+const topArtistHeaders: TableColumn[] = [
+  { key: "name", label: "Artist" },
+  { key: "streams", label: "Streams" },
+];
+const topAlbumHeaders: TableColumn[] = [
+  { key: "name", label: "Album" },
+  { key: "artists", label: "Artists" },
+  { key: "streams", label: "Streams" },
+];
+
 const HistoryPage: React.FC = () => {
   // Redux State
   const dispatch = useAppDispatch();
+  const history = useAppSelector((state) => selectHistory(state).history);
+  const topTracks = useAppSelector((state) => selectHistory(state).topTracks);
+  const topArtists = useAppSelector((state) => selectHistory(state).topArtists);
+  const topAlbums = useAppSelector((state) => selectHistory(state).topAlbums);
 
   // Local State
-  const [headers, setHeaders] = useState<TableColumn[]>([
-    { key: "track", label: "Track" },
-    { key: "album", label: "Album" },
-    { key: "artists", label: "Artists" },
-    { key: "played_at", label: "Played At" },
-  ]);
-  const [data, setData] = useState<any[]>(
-    useAppSelector((state) => state.history.history)
-  );
   const [currentDisplay, setCurrentDisplay] = useState<
     "history" | "tracks" | "artists" | "albums"
   >("history");
   const [error, setError] = useState<string | null>(null);
 
+  // Session Storage
+  const accessToken: string = loadData("access_token");
+
   // Event Handlers
-  const getHistory = () => {
-    const accessToken: string = loadData("access_token");
-    dispatch(fetchHistory(accessToken));
-  };
-
-  const getTop = async () => {
-    const accessToken = loadData("access_token");
-    dispatch(fetchTop(accessToken));
-  };
-
   const handleUpdateHistory = async () => {
     try {
       const headers = { Authorization: `Bearer ${loadData("access_token")}` };
@@ -61,54 +72,17 @@ const HistoryPage: React.FC = () => {
       setError(errorMessage);
     }
     if (!error) {
-      getHistory();
-      getTop();
+      dispatch(fetchHistory(accessToken));
+      dispatch(fetchTop(accessToken));
     }
   };
 
   // Effects
   useEffect(() => {
     setError(null);
-    getHistory();
-    getTop();
-  }, []);
-
-  useEffect(() => {
-    switch (currentDisplay) {
-      case "history":
-        setHeaders([
-          { key: "track", label: "Track" },
-          { key: "album", label: "Album" },
-          { key: "artists", label: "Artists" },
-          { key: "played_at", label: "Played At" },
-        ]);
-        setData(useAppSelector((state) => state.history.history));
-        break;
-      case "tracks":
-        setHeaders([
-          { key: "track", label: "Track" },
-          { key: "artists", label: "Artists" },
-          { key: "streams", label: "Streams" },
-        ]);
-        setData(useAppSelector((state) => state.history.topTracks));
-        break;
-      case "artists":
-        setHeaders([
-          { key: "artist", label: "Artist" },
-          { key: "streams", label: "Streams" },
-        ]);
-        setData(useAppSelector((state) => state.history.topArtists));
-        break;
-      case "albums":
-        setHeaders([
-          { key: "album", label: "Album" },
-          { key: "artists", label: "Artists" },
-          { key: "streams", label: "Streams" },
-        ]);
-        setData(useAppSelector((state) => state.history.topAlbums));
-        break;
-    }
-  }, [currentDisplay]);
+    dispatch(fetchHistory(accessToken));
+    dispatch(fetchTop(accessToken));
+  }, [dispatch]);
 
   // JSX
   return (
@@ -160,11 +134,19 @@ const HistoryPage: React.FC = () => {
 
       <Row className="mt-3">
         <Col>
-          {error ? (
-            <p>{error}</p>
-          ) : (
-            <HistoryTable headers={headers} data={data} />
-          )}
+          {(error && <p>{error}</p>) ||
+            (currentDisplay === "history" && (
+              <HistoryTable data={history} headers={historyHeaders} />
+            )) ||
+            (currentDisplay === "tracks" && (
+              <HistoryTable data={topTracks} headers={topTrackHeaders} />
+            )) ||
+            (currentDisplay === "artists" && (
+              <HistoryTable data={topArtists} headers={topArtistHeaders} />
+            )) ||
+            (currentDisplay === "albums" && (
+              <HistoryTable data={topAlbums} headers={topAlbumHeaders} />
+            ))}
         </Col>
       </Row>
 

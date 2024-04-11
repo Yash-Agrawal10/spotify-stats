@@ -34,9 +34,9 @@ class GetTopView(APIView):
     def get(self, request):
         user = request.user
         limit = int(request.GET.get('limit'))
-        top_artists = get_top_artists(user, 'artists', limit)
-        top_tracks = get_top_tracks(user, 'tracks', limit)
-        top_albums = get_top_albums(user, 'albums', limit)
+        top_artists = get_top_artists(user, limit)
+        top_tracks = get_top_tracks(user, limit)
+        top_albums = get_top_albums(user, limit)
         data = {
             'artists': top_artists,
             'tracks': top_tracks,

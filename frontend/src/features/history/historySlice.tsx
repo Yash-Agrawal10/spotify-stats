@@ -132,4 +132,4 @@ const historySlice = createSlice({
 
 // Exports
 export default historySlice.reducer;
-export const selectHistory = (state: RootState) => state.history.history;
+export const selectHistory = (state: RootState) => state.history;
