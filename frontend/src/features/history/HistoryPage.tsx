@@ -6,22 +6,33 @@ import {
   Col,
   Button,
   ButtonGroup,
-  Table,
 } from "react-bootstrap";
 import { loadData } from "../../app/state/sessionStorage";
 import api, { processError } from "../../app/api/api";
 import { useAppDispatch, useAppSelector } from "../../app/state/hooks";
 import { fetchHistory, fetchTop } from "./historySlice";
+import HistoryTable from "./HistoryTable";
+
+// Interfaces
+interface TableColumn {
+  key: string;
+  label: string;
+}
 
 const HistoryPage: React.FC = () => {
   // Redux State
-  const history = useAppSelector((state) => state.history.history);
-  const topArtists = useAppSelector((state) => state.history.topArtists);
-  const topTracks = useAppSelector((state) => state.history.topTracks);
-  const topAlbums = useAppSelector((state) => state.history.topAlbums);
   const dispatch = useAppDispatch();
 
   // Local State
+  const [headers, setHeaders] = useState<TableColumn[]>([
+    { key: "track", label: "Track" },
+    { key: "album", label: "Album" },
+    { key: "artists", label: "Artists" },
+    { key: "played_at", label: "Played At" },
+  ]);
+  const [data, setData] = useState<any[]>(
+    useAppSelector((state) => state.history.history)
+  );
   const [currentDisplay, setCurrentDisplay] = useState<
     "history" | "tracks" | "artists" | "albums"
   >("history");
@@ -29,7 +40,7 @@ const HistoryPage: React.FC = () => {
 
   // Event Handlers
   const getHistory = () => {
-    const accessToken:string = loadData("access_token");
+    const accessToken: string = loadData("access_token");
     dispatch(fetchHistory(accessToken));
   };
 
@@ -62,20 +73,42 @@ const HistoryPage: React.FC = () => {
     getTop();
   }, []);
 
-  // Helpers
-  function formatDateTime(datetime: string): string {
-    const options: Intl.DateTimeFormatOptions = {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    };
-    const dateObj = new Date(datetime);
-    return new Intl.DateTimeFormat("en-US", options).format(dateObj);
-  }
+  useEffect(() => {
+    switch (currentDisplay) {
+      case "history":
+        setHeaders([
+          { key: "track", label: "Track" },
+          { key: "album", label: "Album" },
+          { key: "artists", label: "Artists" },
+          { key: "played_at", label: "Played At" },
+        ]);
+        setData(useAppSelector((state) => state.history.history));
+        break;
+      case "tracks":
+        setHeaders([
+          { key: "track", label: "Track" },
+          { key: "artists", label: "Artists" },
+          { key: "streams", label: "Streams" },
+        ]);
+        setData(useAppSelector((state) => state.history.topTracks));
+        break;
+      case "artists":
+        setHeaders([
+          { key: "artist", label: "Artist" },
+          { key: "streams", label: "Streams" },
+        ]);
+        setData(useAppSelector((state) => state.history.topArtists));
+        break;
+      case "albums":
+        setHeaders([
+          { key: "album", label: "Album" },
+          { key: "artists", label: "Artists" },
+          { key: "streams", label: "Streams" },
+        ]);
+        setData(useAppSelector((state) => state.history.topAlbums));
+        break;
+    }
+  }, [currentDisplay]);
 
   // JSX
   return (
@@ -130,82 +163,7 @@ const HistoryPage: React.FC = () => {
           {error ? (
             <p>{error}</p>
           ) : (
-            (currentDisplay === "history" && (
-              <Table striped bordered hover responsive>
-                <thead>
-                  <tr>
-                    <th>Track</th>
-                    <th>Album</th>
-                    <th>Artists</th>
-                    <th>Played At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.track}</td>
-                      <td>{item.album}</td>
-                      <td>{item.artists.join(", ")}</td>
-                      <td>{formatDateTime(item.played_at)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )) ||
-            (currentDisplay === "tracks" && (
-              <Table striped bordered hover responsive>
-                <thead>
-                  <tr>
-                    <th>Track</th>
-                    <th>Streams</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topTracks.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.name}</td>
-                      <td>{item.streams}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )) ||
-            (currentDisplay === "artists" && (
-              <Table striped bordered hover responsive>
-                <thead>
-                  <tr>
-                    <th>Artist</th>
-                    <th>Streams</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topArtists.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.name}</td>
-                      <td>{item.streams}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            )) ||
-            (currentDisplay === "albums" && (
-              <Table striped bordered hover responsive>
-                <thead>
-                  <tr>
-                    <th>Album</th>
-                    <th>Streams</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topAlbums.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.name}</td>
-                      <td>{item.streams}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            ))
+            <HistoryTable headers={headers} data={data} />
           )}
         </Col>
       </Row>

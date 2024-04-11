@@ -121,24 +121,38 @@ def get_history(user:UserAccount, limit:int=25):
     readable_history = [get_readable_history_item(item) for item in history]
     return readable_history
 
-def get_top(user:UserAccount, type:str, limit:int=10):
-    if type == 'tracks':
-        group_value = 'track'
-        name = Concat(F('track__title'), Value(' by '), F('track__artists__name'), output_field=CharField())
-    elif type == 'albums':
-        group_value = 'track__album'
-        name = Concat(F('track__album__name'), Value(' by '), F('track__album__artists__name'), output_field=CharField())
-    elif type == 'artists':
-        group_value = 'track__artists'
-        name = F('track__artists__name')
-    else:
-        raise Exception('Invalid type')
-
+def get_top_artists(user:UserAccount, limit:int=10):
     top = (
         HistoryItem.objects.filter(user=user)
-        .values(group_value)
-        .annotate(name=name)
-        .annotate(streams=Count(group_value))
+        .values('track__artists')
+        .annotate(name=F('track__artists__name'))
+        .annotate(streams=Count('track__artists'))
+        .order_by('-streams')[:limit]
+        .values('name', 'streams')
+    )
+
+    return list(top)
+
+def get_top_tracks(user:UserAccount, limit:int=10):
+    top = (
+        HistoryItem.objects.filter(user=user)
+        .values('track')
+        .annotate(name=F('track__title'))
+        .annotate(artists=F('track__artists__name'))
+        .annotate(streams=Count('track'))
+        .order_by('-streams')[:limit]
+        .values('name', 'streams')
+    )
+
+    return list(top)
+
+def get_top_albums(user:UserAccount, limit:int=10):
+    top = (
+        HistoryItem.objects.filter(user=user)
+        .values('track__album')
+        .annotate(name=F('track__album__name'))
+        .annotate(artists=Concat('track__album__artists__name', Value(' '), output_field=CharField()))
+        .annotate(streams=Count('track__album'))
         .order_by('-streams')[:limit]
         .values('name', 'streams')
     )

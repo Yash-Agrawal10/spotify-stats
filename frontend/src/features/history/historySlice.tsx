@@ -10,16 +10,28 @@ interface HistoryItem {
   played_at: string;
 }
 
-interface TopItem {
+interface TopArtistItem {
   name: string;
+  streams: number;
+}
+
+interface TopTrackItem {
+  name: string;
+  artists: string[];
+  streams: number;
+}
+
+interface TopAlbumItem {
+  name: string;
+  artists: string[];
   streams: number;
 }
 
 interface HistoryState {
   history: HistoryItem[];
-  topArtists: TopItem[];
-  topTracks: TopItem[];
-  topAlbums: TopItem[];
+  topArtists: TopArtistItem[];
+  topTracks: TopTrackItem[];
+  topAlbums: TopAlbumItem[];
   error: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
 }
@@ -29,9 +41,9 @@ interface HistoryResponse {
 }
 
 interface TopResponse {
-  artists: TopItem[];
-  tracks: TopItem[];
-  albums: TopItem[];
+  artists: TopArtistItem[];
+  tracks: TopTrackItem[];
+  albums: TopAlbumItem[];
 }
 
 // Reducers
