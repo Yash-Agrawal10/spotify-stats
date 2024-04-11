@@ -81,23 +81,24 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(
-      loginUser.fulfilled,
-      (state, action: PayloadAction<LoginResponse>) => {
-        const user = action.payload.user;
-        const redirect_url = action.payload.redirect_url;
-        state.user = user;
-        state.isLoggedIn = true;
-        state.error = null;
-        window.location.href = redirect_url;
-      }
-    );
-    builder.addCase(
-      loginUser.rejected,
-      (state, action: PayloadAction<string | undefined>) => {
-        state.error = action.payload || "An unexpected error occurred";
-      }
-    );
+    builder
+      .addCase(
+        loginUser.fulfilled,
+        (state, action: PayloadAction<LoginResponse>) => {
+          const user = action.payload.user;
+          const redirect_url = action.payload.redirect_url;
+          state.user = user;
+          state.isLoggedIn = true;
+          state.error = null;
+          window.location.href = redirect_url;
+        }
+      )
+      .addCase(
+        loginUser.rejected,
+        (state, action: PayloadAction<string | undefined>) => {
+          state.error = action.payload || "An unexpected error occurred";
+        }
+      );
   },
 });
 

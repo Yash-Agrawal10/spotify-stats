@@ -10,58 +10,32 @@ import {
 } from "react-bootstrap";
 import { loadData } from "../../app/state/sessionStorage";
 import api, { processError } from "../../app/api/api";
-
-// Interfaces
-interface HistoryItem {
-  track: string;
-  album: string;
-  artists: string[];
-  played_at: string;
-}
-
-interface TopItem {
-  name: string;
-  streams: number;
-}
+import { useAppDispatch, useAppSelector } from "../../app/state/hooks";
+import { fetchHistory, fetchTop } from "./historySlice";
 
 const HistoryPage: React.FC = () => {
+  // Redux State
+  const history = useAppSelector((state) => state.history.history);
+  const topArtists = useAppSelector((state) => state.history.topArtists);
+  const topTracks = useAppSelector((state) => state.history.topTracks);
+  const topAlbums = useAppSelector((state) => state.history.topAlbums);
+  const dispatch = useAppDispatch();
+
   // Local State
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [topArtists, setTopArtists] = useState<TopItem[]>([]);
-  const [topTracks, setTopTracks] = useState<TopItem[]>([]);
-  const [topAlbums, setTopAlbums] = useState<TopItem[]>([]);
   const [currentDisplay, setCurrentDisplay] = useState<
     "history" | "tracks" | "artists" | "albums"
   >("history");
   const [error, setError] = useState<string | null>(null);
 
   // Event Handlers
-  const fetchHistory = async () => {
-    try {
-      const headers = { Authorization: `Bearer ${loadData("access_token")}` };
-      const response = await api.get("/history/history/", { headers });
-      if (response.status === 200) {
-        setHistory(response.data);
-      }
-    } catch (error) {
-      const errorMessage: string = processError(error);
-      setError(errorMessage);
-    }
+  const getHistory = () => {
+    const accessToken:string = loadData("access_token");
+    dispatch(fetchHistory(accessToken));
   };
 
-  const fetchTop = async () => {
-    try {
-      const headers = { Authorization: `Bearer ${loadData("access_token")}` };
-      const response = await api.get("/history/top/", { headers });
-      if (response.status === 200) {
-        setTopArtists(response.data.artists);
-        setTopTracks(response.data.tracks);
-        setTopAlbums(response.data.albums);
-      }
-    } catch (error) {
-      const errorMessage: string = processError(error);
-      setError(errorMessage);
-    }
+  const getTop = async () => {
+    const accessToken = loadData("access_token");
+    dispatch(fetchTop(accessToken));
   };
 
   const handleUpdateHistory = async () => {
@@ -76,16 +50,16 @@ const HistoryPage: React.FC = () => {
       setError(errorMessage);
     }
     if (!error) {
-      fetchHistory();
-      fetchTop();
+      getHistory();
+      getTop();
     }
   };
 
   // Effects
   useEffect(() => {
     setError(null);
-    fetchHistory();
-    fetchTop();
+    getHistory();
+    getTop();
   }, []);
 
   // Helpers

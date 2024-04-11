@@ -20,7 +20,7 @@ class GetHistoryView(APIView):
     def get(self, request):
         user = request.user
         history = get_history(user)
-        return Response(history, status=status.HTTP_200_OK)
+        return Response({"history": history}, status=status.HTTP_200_OK)
     
 class GetTopView(APIView):
     permission_classes = [IsAuthenticated]
