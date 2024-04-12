@@ -1,7 +1,8 @@
 import axios, { isAxiosError } from "axios";
 
+const baseURL = import.meta.env.VITE_API_URL as string;
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL as string,
+  baseURL: baseURL,
 });
 
 api.defaults.validateStatus = function (status: number) {
