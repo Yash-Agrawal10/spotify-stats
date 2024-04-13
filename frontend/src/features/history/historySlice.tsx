@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import api, { processError } from "../../app/api/api";
 import { RootState } from "../../app/state/store";
+import { loadData, saveData } from "../../app/state/sessionStorage";
 
 // Interfaces
 interface HistoryItem {
@@ -81,10 +82,10 @@ export const fetchTop = createAsyncThunk<
 
 // Slice
 const initialState: HistoryState = {
-  history: [],
-  topArtists: [],
-  topTracks: [],
-  topAlbums: [],
+  history: loadData("history") || [],
+  topArtists: loadData("topArtists") || [],
+  topTracks: loadData("topTracks") || [],
+  topAlbums: loadData("topAlbums") || [],
   error: null,
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
 };
@@ -105,6 +106,7 @@ const historySlice = createSlice({
         (state, action: PayloadAction<HistoryResponse>) => {
           state.status = "succeeded";
           state.history = action.payload.history;
+          saveData("history", state.history);
         }
       )
       .addCase(
@@ -122,6 +124,9 @@ const historySlice = createSlice({
         state.topArtists = action.payload.artists;
         state.topTracks = action.payload.tracks;
         state.topAlbums = action.payload.albums;
+        saveData("topArtists", state.topArtists);
+        saveData("topTracks", state.topTracks);
+        saveData("topAlbums", state.topAlbums);
       })
       .addCase(fetchTop.rejected, (state, action) => {
         state.status = "failed";
