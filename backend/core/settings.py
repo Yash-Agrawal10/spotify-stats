@@ -14,7 +14,9 @@ from pathlib import Path
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
-load_dotenv("../.env.development")
+script_dir = os.path.dirname(os.path.abspath(__file__))
+env_path = os.path.join(script_dir, '../.env.development')
+load_dotenv(dotenv_path=env_path)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
