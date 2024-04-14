@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Container,
   Card,
@@ -11,6 +11,8 @@ import {
 import { loadData } from "../../app/state/sessionStorage";
 import api, { processError } from "../../app/api/api";
 import HistoryTable from "./HistoryTable";
+import { useAppSelector, useAppDispatch } from "../../app/state/hooks";
+import { getHistory, selectHistory } from "./historySlice";
 
 const HistoryPage: React.FC = () => {
   // (will be automated on launch)
@@ -19,57 +21,33 @@ const HistoryPage: React.FC = () => {
       const headers = { Authorization: `Bearer ${loadData("access_token")}` };
       const response = await api.post("/history/update/", {}, { headers });
       if (response.status === 200) {
-        setError(null);
+        console.log("History updated successfully");
       }
     } catch (error) {
       const errorMessage: string = processError(error);
-      setError(errorMessage);
+      console.log(errorMessage);
     }
   };
 
-  // Local State
-  const [currentDisplay, setCurrentDisplay] = useState<
-    "history" | "tracks" | "artists" | "albums"
-  >("history");
-  const [itemCount, setItemCount] = useState<number>(10);
-  const [startDate, setStartDate] = useState<string>("--");
-  const [endDate, setEndDate] = useState<string>("--");
-  const [data, setData] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  // Redux State
+  const error = useAppSelector((state) => selectHistory(state).error);
+  const { type, limit, start, end } = useAppSelector(
+    (state) => state.history.params
+  );
+  const dispatch = useAppDispatch();
 
   // Event Handlers
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const target = event.target as HTMLButtonElement;
-    setCurrentDisplay(
-      target.name as "history" | "tracks" | "artists" | "albums"
-    );
-    setStartDate("--");
-    setEndDate("--");
-  };
-
-  // Effects
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const headers = { Authorization: `Bearer ${loadData("access_token")}` };
-        const params = {
-          type: currentDisplay,
-          limit: itemCount,
-          start: startDate,
-          end: endDate,
-        };
-        const response = await api.get("/history/get/", { headers, params });
-        if (response.status === 200) {
-          setData(response.data);
-          setError(null);
-        }
-      } catch (error) {
-        const errorMessage: string = processError(error);
-        setError(errorMessage);
-      }
+    if (type === event.currentTarget.name) return;
+    type ValidType = "history" | "albums" | "artists" | "tracks";
+    const params = {
+      type: event.currentTarget.name as ValidType,
+      limit,
+      start,
+      end,
     };
-    fetchData();
-  }, [currentDisplay, itemCount, startDate, endDate]);
+    dispatch(getHistory(params));
+  };
 
   // JSX
   return (
@@ -93,28 +71,28 @@ const HistoryPage: React.FC = () => {
           <ButtonGroup>
             <Button
               name="history"
-              variant={currentDisplay == "history" ? "primary" : "secondary"}
+              variant={type == "history" ? "primary" : "secondary"}
               onClick={handleClick}
             >
               History
             </Button>
             <Button
               name="tracks"
-              variant={currentDisplay == "tracks" ? "primary" : "secondary"}
+              variant={type == "tracks" ? "primary" : "secondary"}
               onClick={handleClick}
             >
               Top Tracks
             </Button>
             <Button
               name="artists"
-              variant={currentDisplay == "artists" ? "primary" : "secondary"}
+              variant={type == "artists" ? "primary" : "secondary"}
               onClick={handleClick}
             >
               Top Artists
             </Button>
             <Button
               name="albums"
-              variant={currentDisplay == "albums" ? "primary" : "secondary"}
+              variant={type == "albums" ? "primary" : "secondary"}
               onClick={handleClick}
             >
               Top Albums
@@ -124,13 +102,15 @@ const HistoryPage: React.FC = () => {
         <Col xs="auto">
           <Dropdown as={ButtonGroup}>
             <Dropdown.Toggle variant="success" id="dropdown-item-count">
-              Display {itemCount} Items
+              Display {limit} Items
             </Dropdown.Toggle>
             <Dropdown.Menu>
               {[5, 10, 20, 50].map((number) => (
                 <Dropdown.Item
                   key={number}
-                  onClick={() => setItemCount(number)}
+                  onClick={() =>
+                    dispatch(getHistory({ type, limit: number, start, end }))
+                  }
                 >
                   {number}
                 </Dropdown.Item>
@@ -141,11 +121,7 @@ const HistoryPage: React.FC = () => {
       </Row>
 
       <Row className="mt-3">
-        <Col>
-          {(error && <p>{error}</p>) || (
-            <HistoryTable data={data} currentDisplay={currentDisplay} />
-          )}
-        </Col>
+        <Col>{(error && <p>{error}</p>) || <HistoryTable />}</Col>
       </Row>
 
       <Row className="mt-3">

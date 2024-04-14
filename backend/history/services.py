@@ -2,9 +2,10 @@ from .models import Track, HistoryItem, Artist, Album
 from .serializers import ArtistSerializer, AlbumSerializer, TrackSerializer, HistoryItemSerializer
 from spotify.services import get_recently_played
 
-from django.db.models import Count, F, Value, CharField
-from django.db.models.functions import Concat
+from django.db.models import Count, F
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.utils.dateparse import parse_datetime
+
 
 from users.models import UserAccount
 
@@ -110,6 +111,8 @@ def update_history(user:UserAccount):
 # Analyze history
 def get_history_by_date(user:UserAccount, start_date:str=None, end_date:str=None):
     history = HistoryItem.objects.filter(user=user)
+    start_date = parse_datetime(start_date) if start_date else None
+    end_date = parse_datetime(end_date) if end_date else None
     if start_date:
         history = history.filter(played_at__gte=start_date)
     if end_date:

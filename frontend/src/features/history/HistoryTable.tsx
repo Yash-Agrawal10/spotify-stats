@@ -1,5 +1,6 @@
 import React from "react";
 import { Table } from "react-bootstrap";
+import { useAppSelector } from "../../app/state/hooks";
 
 // Interfaces
 export interface TableColumn {
@@ -38,15 +39,11 @@ const getHeaders = (currentDisplay: string): TableColumn[] => {
   }
 };
 
-interface HistoryTableProps {
-  data: any[];
-  currentDisplay: "history" | "tracks" | "artists" | "albums";
-}
+const HistoryTable: React.FC = () => {
+  // Redux State
+  const data = useAppSelector((state) => state.history.data);
+  const type = useAppSelector((state) => state.history.params.type);
 
-const HistoryTable: React.FC<HistoryTableProps> = ({
-  data,
-  currentDisplay,
-}: HistoryTableProps) => {
   // Helpers
   const defaultFormatter = (value: any, type: string) => {
     switch (type) {
@@ -76,7 +73,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
     }
   };
 
-  const headers = getHeaders(currentDisplay);
+  const headers = getHeaders(type);
 
   return (
     <Table striped bordered hover responsive>
