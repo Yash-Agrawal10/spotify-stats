@@ -10,55 +10,10 @@ import {
 } from "react-bootstrap";
 import { loadData } from "../../app/state/sessionStorage";
 import api, { processError } from "../../app/api/api";
-import { useAppDispatch, useAppSelector } from "../../app/state/hooks";
-import { fetchHistory, fetchTop } from "./historySlice";
 import HistoryTable from "./HistoryTable";
-import { selectHistory } from "./historySlice";
-
-// Interfaces
-import { TableColumn } from "./HistoryTable";
-
-// Constants
-const historyHeaders: TableColumn[] = [
-  { key: "track", label: "Track", type: "string" },
-  { key: "album", label: "Album", type: "string" },
-  { key: "artists", label: "Artists", type: "array" },
-  { key: "played_at", label: "Played At", type: "date" },
-];
-const topTrackHeaders: TableColumn[] = [
-  { key: "name", label: "Track", type: "string" },
-  { key: "artists", label: "Artists", type: "array" },
-  { key: "streams", label: "Streams", type: "number" },
-];
-const topArtistHeaders: TableColumn[] = [
-  { key: "name", label: "Artist", type: "string" },
-  { key: "streams", label: "Streams", type: "number" },
-];
-const topAlbumHeaders: TableColumn[] = [
-  { key: "name", label: "Album", type: "string" },
-  { key: "artists", label: "Artists", type: "array" },
-  { key: "streams", label: "Streams", type: "number" },
-];
 
 const HistoryPage: React.FC = () => {
-  // Redux State
-  const dispatch = useAppDispatch();
-  const history = useAppSelector((state) => selectHistory(state).history);
-  const topTracks = useAppSelector((state) => selectHistory(state).topTracks);
-  const topArtists = useAppSelector((state) => selectHistory(state).topArtists);
-  const topAlbums = useAppSelector((state) => selectHistory(state).topAlbums);
-
-  // Local State
-  const [currentDisplay, setCurrentDisplay] = useState<
-    "history" | "tracks" | "artists" | "albums"
-  >("history");
-  const [error, setError] = useState<string | null>(null);
-  const [itemCount, setItemCount] = useState<number>(10);
-
-  // Session Storage
-  const accessToken: string = loadData("access_token");
-
-  // Event Handlers (handleUpdateHistory will be automated on launch)
+  // (will be automated on launch)
   const handleUpdateHistory = async () => {
     try {
       const headers = { Authorization: `Bearer ${loadData("access_token")}` };
@@ -70,25 +25,51 @@ const HistoryPage: React.FC = () => {
       const errorMessage: string = processError(error);
       setError(errorMessage);
     }
-    if (!error) {
-      dispatch(fetchHistory(accessToken));
-      dispatch(fetchTop(accessToken));
-    }
   };
 
+  // Local State
+  const [currentDisplay, setCurrentDisplay] = useState<
+    "history" | "tracks" | "artists" | "albums"
+  >("history");
+  const [itemCount, setItemCount] = useState<number>(10);
+  const [startDate, setStartDate] = useState<string>("--");
+  const [endDate, setEndDate] = useState<string>("--");
+  const [data, setData] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  // Event Handlers
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     const target = event.target as HTMLButtonElement;
     setCurrentDisplay(
       target.name as "history" | "tracks" | "artists" | "albums"
     );
+    setStartDate("--");
+    setEndDate("--");
   };
 
   // Effects
   useEffect(() => {
-    setError(null);
-    dispatch(fetchHistory(accessToken));
-    dispatch(fetchTop(accessToken));
-  }, [dispatch]);
+    const fetchData = async () => {
+      try {
+        const headers = { Authorization: `Bearer ${loadData("access_token")}` };
+        const params = {
+          type: currentDisplay,
+          limit: itemCount,
+          start: startDate,
+          end: endDate,
+        };
+        const response = await api.get("/history/get/", { headers, params });
+        if (response.status === 200) {
+          setData(response.data);
+          setError(null);
+        }
+      } catch (error) {
+        const errorMessage: string = processError(error);
+        setError(errorMessage);
+      }
+    };
+    fetchData();
+  }, [currentDisplay, itemCount, startDate, endDate]);
 
   // JSX
   return (
@@ -161,31 +142,9 @@ const HistoryPage: React.FC = () => {
 
       <Row className="mt-3">
         <Col>
-          {(error && <p>{error}</p>) ||
-            (currentDisplay === "history" && (
-              <HistoryTable
-                data={history.slice(0, itemCount)}
-                headers={historyHeaders}
-              />
-            )) ||
-            (currentDisplay === "tracks" && (
-              <HistoryTable
-                data={topTracks.slice(0, itemCount)}
-                headers={topTrackHeaders}
-              />
-            )) ||
-            (currentDisplay === "artists" && (
-              <HistoryTable
-                data={topArtists.slice(0, itemCount)}
-                headers={topArtistHeaders}
-              />
-            )) ||
-            (currentDisplay === "albums" && (
-              <HistoryTable
-                data={topAlbums.slice(0, itemCount)}
-                headers={topAlbumHeaders}
-              />
-            ))}
+          {(error && <p>{error}</p>) || (
+            <HistoryTable data={data} currentDisplay={currentDisplay} />
+          )}
         </Col>
       </Row>
 
