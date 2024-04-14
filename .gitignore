@@ -51,3 +51,5 @@ tmp_email/
 .direnv
 .envrc
 .tool-versions
+# Local Netlify folder
+.netlify
