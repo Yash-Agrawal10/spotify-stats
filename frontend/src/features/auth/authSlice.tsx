@@ -39,14 +39,21 @@ export const loginUser = createAsyncThunk<
   try {
     // Make API calls to get token and user
     const authResponse = await api.post("token/", credentials);
-    const { refresh_token, access_token } = authResponse.data;
-    const headers = { Authorization: `Bearer ${access_token}` };
+    console.log(authResponse);
+    const { access, refresh } = authResponse.data;
+    console.log(access, refresh);
+    const headers = { Authorization: `Bearer ${access}` };
     const userResponse = await api.get("users/me/", { headers });
     const user: User = userResponse.data.user as User;
     const spotifyAuthResponse = await api.get("spotify/auth/", { headers });
     const redirect_url = spotifyAuthResponse.data.redirect_url;
     if (redirect_url) {
-      return { user, access_token, refresh_token, redirect_url };
+      return {
+        user: user,
+        access_token: access,
+        refresh_token: refresh,
+        redirect_url: redirect_url,
+      };
     }
     return rejectWithValue("Spotify authentication failed");
   } catch (error: any) {
