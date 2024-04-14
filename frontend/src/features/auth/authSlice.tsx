@@ -46,7 +46,6 @@ export const loginUser = createAsyncThunk<
     const spotifyAuthResponse = await api.get("spotify/auth/", { headers });
     const redirect_url = spotifyAuthResponse.data.redirect_url;
     if (redirect_url) {
-      // Return User
       return { user, access_token, refresh_token, redirect_url };
     }
     return rejectWithValue("Spotify authentication failed");
