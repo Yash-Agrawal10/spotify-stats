@@ -29,9 +29,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-+gp!#42!+3&-@!l&uc#sn-uu=zdj4borq+bvnfy*9t+#op8lc_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["localhost", "spotify-stats-api.herokuapp.com", ]
+ALLOWED_HOSTS = ["127.0.0.1", "spotify-stats.onrender.com", ]
 
 
 # Application definition
