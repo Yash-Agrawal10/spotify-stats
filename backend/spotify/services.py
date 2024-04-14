@@ -4,11 +4,7 @@ from datetime import timedelta
 from .models import SpotifyToken
 
 # Get environment variables
-from dotenv import load_dotenv
 import os
-script_dir = os.path.dirname(os.path.abspath(__file__))
-env_path = os.path.join(script_dir, '../.env.development')
-load_dotenv(dotenv_path=env_path)
 client_id = os.getenv('CLIENT_ID')
 client_secret = os.getenv('CLIENT_SECRET')
 redirect_uri = os.getenv('REDIRECT_URI')

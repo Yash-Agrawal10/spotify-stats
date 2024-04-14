@@ -9,6 +9,7 @@ import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 const LoginPage: React.FC = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const status = useAppSelector(selectAuth).status;
   const error = useAppSelector(selectAuth).error;
   const isLoggedIn = useAppSelector(selectAuth).isLoggedIn;
   const dispatch = useAppDispatch();
@@ -77,11 +78,16 @@ const LoginPage: React.FC = () => {
             </Button>
           </Form>
 
-          {error && (
+          {(error && (
             <Alert variant="danger" className="mt-3">
               {error}
             </Alert>
-          )}
+          )) ||
+            (status === "loading" && (
+              <Alert variant="info" className="mt-3">
+                Loading...
+              </Alert>
+            ))}
         </Col>
       </Row>
     </Container>

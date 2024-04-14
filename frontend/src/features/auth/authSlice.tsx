@@ -19,11 +19,14 @@ interface User {
 interface AuthState {
   user: User | null;
   isLoggedIn: boolean;
+  status: "idle" | "loading" | "failed";
   error: string | null;
 }
 
 interface LoginResponse {
   user: User;
+  access_token: string;
+  refresh_token: string;
   redirect_url: string;
 }
 
@@ -36,20 +39,15 @@ export const loginUser = createAsyncThunk<
   try {
     // Make API calls to get token and user
     const authResponse = await api.post("token/", credentials);
-    const { refresh, access } = authResponse.data;
-    const headers = { Authorization: `Bearer ${access}` };
+    const { refresh_token, access_token } = authResponse.data;
+    const headers = { Authorization: `Bearer ${access_token}` };
     const userResponse = await api.get("users/me/", { headers });
     const user: User = userResponse.data.user as User;
     const spotifyAuthResponse = await api.get("spotify/auth/", { headers });
     const redirect_url = spotifyAuthResponse.data.redirect_url;
     if (redirect_url) {
-      // Save data to session storage
-      saveData("access_token", access);
-      saveData("refresh_token", refresh);
-      saveData("isLoggedIn", true);
-      saveData("user", user);
       // Return User
-      return { user, redirect_url };
+      return { user, access_token, refresh_token, redirect_url };
     }
     return rejectWithValue("Spotify authentication failed");
   } catch (error: any) {
@@ -63,6 +61,7 @@ export const loginUser = createAsyncThunk<
 const initialState: AuthState = {
   user: loadData("user") || null,
   isLoggedIn: loadData("isLoggedIn") || false,
+  status: "idle",
   error: null,
 };
 
@@ -89,16 +88,26 @@ const authSlice = createSlice({
           const redirect_url = action.payload.redirect_url;
           state.user = user;
           state.isLoggedIn = true;
+          state.status = "idle";
           state.error = null;
+          saveData("user", user);
+          saveData("isLoggedIn", true);
+          saveData("access_token", action.payload.access_token);
+          saveData("refresh_token", action.payload.refresh_token);
           window.location.href = redirect_url;
         }
       )
       .addCase(
         loginUser.rejected,
         (state, action: PayloadAction<string | undefined>) => {
+          state.status = "failed";
           state.error = action.payload || "An unexpected error occurred";
         }
-      );
+      )
+      .addCase(loginUser.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      });
   },
 });
 
