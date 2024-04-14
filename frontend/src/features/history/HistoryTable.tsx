@@ -7,15 +7,45 @@ export interface TableColumn {
   label: string;
   type: "string" | "number" | "date" | "array";
 }
+const getHeaders = (currentDisplay: string): TableColumn[] => {
+  switch (currentDisplay) {
+    case "history":
+      return [
+        { key: "track", label: "Track", type: "string" },
+        { key: "album", label: "Album", type: "string" },
+        { key: "artists", label: "Artists", type: "array" },
+        { key: "played_at", label: "Played At", type: "date" },
+      ];
+    case "tracks":
+      return [
+        { key: "name", label: "Track", type: "string" },
+        { key: "artists", label: "Artists", type: "array" },
+        { key: "streams", label: "Streams", type: "number" },
+      ];
+    case "artists":
+      return [
+        { key: "name", label: "Artist", type: "string" },
+        { key: "streams", label: "Streams", type: "number" },
+      ];
+    case "albums":
+      return [
+        { key: "name", label: "Album", type: "string" },
+        { key: "artists", label: "Artists", type: "array" },
+        { key: "streams", label: "Streams", type: "number" },
+      ];
+    default:
+      return [];
+  }
+};
 
 interface HistoryTableProps {
-  headers: TableColumn[];
   data: any[];
+  currentDisplay: "history" | "tracks" | "artists" | "albums";
 }
 
 const HistoryTable: React.FC<HistoryTableProps> = ({
-  headers,
   data,
+  currentDisplay,
 }: HistoryTableProps) => {
   // Helpers
   const defaultFormatter = (value: any, type: string) => {
@@ -45,6 +75,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
         return value.toString();
     }
   };
+
+  const headers = getHeaders(currentDisplay);
 
   return (
     <Table striped bordered hover responsive>

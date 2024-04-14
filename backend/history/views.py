@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .services import update_history, get_history, get_top_artists, get_top_tracks, get_top_albums
+from .services import update_history, get_readable_history, get_top_artists, get_top_tracks, get_top_albums
 
 # Create your views here.
 class UpdateHistoryView(APIView):
@@ -21,25 +21,19 @@ class GetHistoryView(APIView):
 
     def get(self, request):
         user = request.user
+        type = request.GET.get('type')
         limit = int(request.GET.get('limit'))
-        history = get_history(user, limit)
-        data = {
-            'history': history,
-        }
-        return Response(data, status=status.HTTP_200_OK)
-    
-class GetTopView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        user = request.user
-        limit = int(request.GET.get('limit'))
-        top_artists = get_top_artists(user, limit)
-        top_tracks = get_top_tracks(user, limit)
-        top_albums = get_top_albums(user, limit)
-        data = {
-            'artists': top_artists,
-            'tracks': top_tracks,
-            'albums': top_albums,
-        }
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        if type == 'artists':
+            data = get_top_artists(user, limit, start_date, end_date)
+        elif type == 'tracks':
+            data = get_top_tracks(user, limit, start_date, end_date)
+        elif type == 'albums':
+            data = get_top_albums(user, limit, start_date, end_date)
+        elif type == 'history':
+            data = get_readable_history(user, limit, start_date, end_date)
+        else:
+            data = {"detail": "Invalid type"}
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
         return Response(data, status=status.HTTP_200_OK)

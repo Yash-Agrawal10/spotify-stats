@@ -108,51 +108,61 @@ def update_history(user:UserAccount):
     return True
 
 # Analyze history
-def get_readable_history_item(history_item):
-    data = {
-        'track': history_item.track.title,
-        'artists': [artist.name for artist in history_item.track.artists.all()],
-        'album': history_item.track.album.name,
-        'played_at': history_item.played_at,
-    }
-    return data
+def get_history_by_date(user:UserAccount, start_date:str=None, end_date:str=None):
+    history = HistoryItem.objects.filter(user=user)
+    if start_date:
+        history = history.filter(played_at__gte=start_date)
+    if end_date:
+        history = history.filter(played_at__lte=end_date)
+    return history
 
-def get_history(user:UserAccount, limit:int=25):
-    history = HistoryItem.objects.filter(user=user)[:limit]
-    readable_history = [get_readable_history_item(item) for item in history]
+def get_readable_history(user:UserAccount, limit:int=25, start_date:str=None, end_date:str=None):
+    history = get_history_by_date(user, start_date, end_date)[:limit]
+    readable_history = []
+    for history_item in history:
+        readable_history_item = {
+            'track': history_item.track.title,
+            'artists': [artist.name for artist in history_item.track.artists.all()],
+            'album': history_item.track.album.name,
+            'played_at': history_item.played_at,
+        }
+        readable_history.append(readable_history_item)
     return readable_history
 
-def get_top_artists(user:UserAccount, limit:int=10):
+def get_top_artists(user:UserAccount, limit:int=10, start_date:str=None, end_date:str=None):
+    history = get_history_by_date(user, start_date, end_date)
     top_artists = (
-        HistoryItem.objects.filter(user=user)
+        history
         .values('track__artists')
         .annotate(name=F('track__artists__name'))
         .annotate(streams=Count('track__artists'))
         .order_by('-streams')[:limit]
         .values('name', 'streams')
-    )
+    )[:limit]
     return list(top_artists)
 
-def get_top_tracks(user:UserAccount, limit:int=10):
+def get_top_tracks(user:UserAccount, limit:int=10, start_date:str=None, end_date:str=None):
+    history = get_history_by_date(user, start_date, end_date)
     top_tracks = (
-        HistoryItem.objects.filter(user=user)
+        history
         .values('track')
         .annotate(streams=Count('id', distinct=True))
         .annotate(name=F('track__title'))
         .annotate(artists=ArrayAgg('track__artists__name', distinct=True))
         .order_by('-streams')[:limit]
         .values('name', 'artists', 'streams')
-    )
+    )[:limit]
     return list(top_tracks)
 
-def get_top_albums(user:UserAccount, limit:int=10):
+def get_top_albums(user:UserAccount, limit:int=10, start_date:str=None, end_date:str=None):
+    history = get_history_by_date(user, start_date, end_date)
     top_albums = (
-        HistoryItem.objects.filter(user=user)
+        history
         .values('track__album')
         .annotate(streams=Count('id', distinct=True))
         .annotate(name=F('track__album__name'))
         .annotate(artists=ArrayAgg('track__album__artists__name', distinct=True))
         .order_by('-streams')[:limit]
         .values('name', 'artists', 'streams')
-    )
+    )[:limit]
     return list(top_albums)

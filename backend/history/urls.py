@@ -1,8 +1,7 @@
 from django.urls import path
-from .views import UpdateHistoryView, GetHistoryView, GetTopView
+from .views import UpdateHistoryView, GetHistoryView
 
 urlpatterns = [
     path('update/', UpdateHistoryView.as_view()),
-    path('history/', GetHistoryView.as_view()),
-    path('top/', GetTopView.as_view()),
+    path('get/', GetHistoryView.as_view()),
 ]
