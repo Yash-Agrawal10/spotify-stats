@@ -31,7 +31,7 @@ SECRET_KEY = 'django-insecure-+gp!#42!+3&-@!l&uc#sn-uu=zdj4borq+bvnfy*9t+#op8lc_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["127.0.0.1", "spotify-stats.onrender.com", ]
+ALLOWED_HOSTS = ["127.0.0.1", "https://spotify-stats-vwhr.onrender.com/", ]
 
 
 # Application definition
