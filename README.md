@@ -1,5 +1,8 @@
 This is a web app that allows you to view your spotify history, top artists, albums, and tracks.
 
+Bugs:
+1. Timezones are disconnected currently
+
 Things I want to do:
 
 1. Deploy on something and automate history collection

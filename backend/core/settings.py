@@ -31,7 +31,7 @@ SECRET_KEY = 'django-insecure-+gp!#42!+3&-@!l&uc#sn-uu=zdj4borq+bvnfy*9t+#op8lc_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "spotify-stats-api.herokuapp.com", ]
 
 
 # Application definition
@@ -91,20 +91,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-db_name = os.getenv('DB_NAME')
-db_user = os.getenv('DB_USER')
-db_password = os.getenv('DB_PASSWORD')
-db_host = os.getenv('DB_HOST')
-db_port = os.getenv('DB_PORT')
+import dj_database_url
+db_url = os.getenv('DATABASE_URL')
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': db_name,
-        'USER': db_user,
-        'PASSWORD': db_password,
-        'HOST': db_host,
-        'PORT': db_port,
-    }
+    'default': dj_database_url.config(default=db_url)
 }
 
 
