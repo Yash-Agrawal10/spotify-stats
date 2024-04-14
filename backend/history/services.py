@@ -5,7 +5,7 @@ from spotify.services import get_recently_played
 from django.db.models import Count, F
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.utils.dateparse import parse_datetime
-
+from datetime import timedelta
 
 from users.models import UserAccount
 
@@ -111,16 +111,25 @@ def update_history(user:UserAccount):
 # Analyze history
 def get_history_by_date(user:UserAccount, start_date:str=None, end_date:str=None):
     history = HistoryItem.objects.filter(user=user)
-    start_date = parse_datetime(start_date) if start_date else None
-    end_date = parse_datetime(end_date) if end_date else None
     if start_date:
-        history = history.filter(played_at__gte=start_date)
+        parsed_start_date = parse_datetime(start_date)
+        print(parsed_start_date)
+        if parsed_start_date:
+            history = history.filter(played_at__gte=parsed_start_date)
     if end_date:
-        history = history.filter(played_at__lte=end_date)
+        parsed_end_date = parse_datetime(end_date)
+        if parsed_end_date:
+            end_of_day = parsed_end_date + timedelta(days=1, microseconds=-1)
+            print(end_of_day)
+            history = history.filter(played_at__lte=end_of_day)
     return history
 
 def get_readable_history(user:UserAccount, limit:int=25, start_date:str=None, end_date:str=None):
-    history = get_history_by_date(user, start_date, end_date)[:limit]
+    history = get_history_by_date(user, start_date, end_date)
+    if history:
+        history = history[:limit]
+    else:
+        return []
     readable_history = []
     for history_item in history:
         readable_history_item = {
@@ -134,6 +143,8 @@ def get_readable_history(user:UserAccount, limit:int=25, start_date:str=None, en
 
 def get_top_artists(user:UserAccount, limit:int=10, start_date:str=None, end_date:str=None):
     history = get_history_by_date(user, start_date, end_date)
+    if not history:
+        return []
     top_artists = (
         history
         .values('track__artists')
@@ -146,6 +157,8 @@ def get_top_artists(user:UserAccount, limit:int=10, start_date:str=None, end_dat
 
 def get_top_tracks(user:UserAccount, limit:int=10, start_date:str=None, end_date:str=None):
     history = get_history_by_date(user, start_date, end_date)
+    if not history:
+        return []
     top_tracks = (
         history
         .values('track')
@@ -159,6 +172,8 @@ def get_top_tracks(user:UserAccount, limit:int=10, start_date:str=None, end_date
 
 def get_top_albums(user:UserAccount, limit:int=10, start_date:str=None, end_date:str=None):
     history = get_history_by_date(user, start_date, end_date)
+    if not history:
+        return []
     top_albums = (
         history
         .values('track__album')

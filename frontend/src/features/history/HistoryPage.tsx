@@ -1,18 +1,13 @@
-import React from "react";
-import {
-  Container,
-  Card,
-  Row,
-  Col,
-  Button,
-  ButtonGroup,
-  Dropdown,
-} from "react-bootstrap";
-import { loadData } from "../../app/state/sessionStorage";
+import React, { useEffect } from "react";
 import api, { processError } from "../../app/api/api";
-import HistoryTable from "./HistoryTable";
+import { Container, Card, Row, Col, Button } from "react-bootstrap";
+import { loadData } from "../../app/state/sessionStorage";
 import { useAppSelector, useAppDispatch } from "../../app/state/hooks";
 import { getHistory, selectHistory } from "./historySlice";
+import HistoryTable from "./HistoryTable";
+import HistoryTypes from "./HistoryTypes";
+import HistoryLimit from "./HistoryLimit";
+import HistoryDates from "./HistoryDates";
 
 const HistoryPage: React.FC = () => {
   // (will be automated on launch)
@@ -36,18 +31,10 @@ const HistoryPage: React.FC = () => {
   );
   const dispatch = useAppDispatch();
 
-  // Event Handlers
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (type === event.currentTarget.name) return;
-    type ValidType = "history" | "albums" | "artists" | "tracks";
-    const params = {
-      type: event.currentTarget.name as ValidType,
-      limit,
-      start,
-      end,
-    };
-    dispatch(getHistory(params));
-  };
+  // Effects
+  useEffect(() => {
+    dispatch(getHistory({ type, limit, start, end }));
+  }, []);
 
   // JSX
   return (
@@ -66,59 +53,19 @@ const HistoryPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Row className="mt-3">
-        <Col>
-          <ButtonGroup>
-            <Button
-              name="history"
-              variant={type == "history" ? "primary" : "secondary"}
-              onClick={handleClick}
-            >
-              History
-            </Button>
-            <Button
-              name="tracks"
-              variant={type == "tracks" ? "primary" : "secondary"}
-              onClick={handleClick}
-            >
-              Top Tracks
-            </Button>
-            <Button
-              name="artists"
-              variant={type == "artists" ? "primary" : "secondary"}
-              onClick={handleClick}
-            >
-              Top Artists
-            </Button>
-            <Button
-              name="albums"
-              variant={type == "albums" ? "primary" : "secondary"}
-              onClick={handleClick}
-            >
-              Top Albums
-            </Button>
-          </ButtonGroup>
-        </Col>
-        <Col xs="auto">
-          <Dropdown as={ButtonGroup}>
-            <Dropdown.Toggle variant="success" id="dropdown-item-count">
-              Display {limit} Items
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              {[5, 10, 20, 50].map((number) => (
-                <Dropdown.Item
-                  key={number}
-                  onClick={() =>
-                    dispatch(getHistory({ type, limit: number, start, end }))
-                  }
-                >
-                  {number}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </Col>
-      </Row>
+      <Container fluid>
+        <Row className="mt-3 d-flex align-items-center justify-content-around">
+          <Col xl={4} lg={4} md={6} sm={12} className="mb-3">
+            <HistoryTypes />
+          </Col>
+          <Col xl={3} lg={3} md={6} sm={12} xs="auto" className="mb-3">
+            <HistoryLimit />
+          </Col>
+          <Col xl={4} lg={4} md={6} sm={12} xs="auto" className="mb-3">
+            <HistoryDates />
+          </Col>
+        </Row>
+      </Container>
 
       <Row className="mt-3">
         <Col>{(error && <p>{error}</p>) || <HistoryTable />}</Col>

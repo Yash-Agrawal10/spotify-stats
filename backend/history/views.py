@@ -23,8 +23,8 @@ class GetHistoryView(APIView):
         user = request.user
         type = request.GET.get('type')
         limit = int(request.GET.get('limit'))
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
+        start_date = request.GET.get('start')
+        end_date = request.GET.get('end')
         if type == 'artists':
             data = get_top_artists(user, limit, start_date, end_date)
         elif type == 'tracks':

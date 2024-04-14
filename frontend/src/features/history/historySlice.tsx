@@ -14,8 +14,8 @@ interface HistoryState {
 interface GetHistoryParams {
   type: "history" | "tracks" | "artists" | "albums";
   limit: number;
-  start: string | null;
-  end: string | null;
+  start: string;
+  end: string;
 }
 
 interface GetHistoryResponse {
@@ -42,7 +42,7 @@ export const getHistory = createAsyncThunk<
 // Slice
 const initialState: HistoryState = {
   data: [],
-  params: { type: "history", limit: 10, start: null, end: null },
+  params: { type: "history", limit: 10, start: "", end: "" },
   error: null,
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
 };
