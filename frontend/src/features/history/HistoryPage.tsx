@@ -55,13 +55,13 @@ const HistoryPage: React.FC = () => {
 
       <Container fluid>
         <Row className="mt-3 d-flex align-items-center justify-content-around">
-          <Col xl={4} lg={4} md={6} sm={12} className="mb-3">
+          <Col>
             <HistoryTypes />
           </Col>
-          <Col xl={3} lg={3} md={6} sm={12} xs="auto" className="mb-3">
+          <Col>
             <HistoryLimit />
           </Col>
-          <Col xl={4} lg={4} md={6} sm={12} xs="auto" className="mb-3">
+          <Col>
             <HistoryDates />
           </Col>
         </Row>
