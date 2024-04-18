@@ -8,9 +8,11 @@ import os
 client_id = os.getenv('CLIENT_ID')
 client_secret = os.getenv('CLIENT_SECRET')
 redirect_uri = os.getenv('REDIRECT_URI')
+scopes = os.getenv('SCOPES')
 
 # Token services
-def get_spotify_auth_url(scopes:str, state:str=None):
+def get_spotify_auth_url(state:str=None):
+    print(redirect_uri)
     params = {
         'client_id': client_id,
         'response_type': 'code',
@@ -70,6 +72,8 @@ def refresh_spotify_token(spotify_token:SpotifyToken):
         return None
     
 def check_valid_and_refresh(token:SpotifyToken):
+    if token.scope != scopes:
+        return False
     refreshed_access_token = refresh_spotify_token(token)
     if refreshed_access_token:
         return True

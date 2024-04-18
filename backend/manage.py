@@ -7,7 +7,7 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    dotenv_path = os.path.join(os.path.dirname(__file__), '.env.development')
+    dotenv_path = os.path.join(os.path.dirname(__file__), '.env.production')
     dotenv.load_dotenv(dotenv_path)
     
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')

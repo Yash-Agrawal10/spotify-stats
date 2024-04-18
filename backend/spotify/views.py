@@ -25,8 +25,7 @@ class SpotifyAuthView(APIView):
             oauth_state_serializer = OAuthStateSerializer(data={'user': user.pk, 'state': state})
             if oauth_state_serializer.is_valid(raise_exception=True):
                 oauth_state_serializer.save()
-            scopes = 'user-read-recently-played'
-            auth_url = get_spotify_auth_url(scopes, state)
+            auth_url = get_spotify_auth_url(state)
             return JsonResponse({'redirect_url': auth_url}, status=200)
         else:
             redirect_url = settings.FRONTEND_URL
